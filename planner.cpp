@@ -4,6 +4,7 @@
 #include <math.h>
 #include <limits>
 #include <point.hpp>
+#include<vector>
 
 using namespace std;
 
@@ -36,6 +37,7 @@ class Planner
     vector<Node> node_list;
     Node random_point();
     Node nearest_pt();
+    void rewire(vector<Node> nearby_nodes);
 
     public:
     Node steer();
@@ -72,11 +74,11 @@ vector<Node> Planner::RRTstar()
         {
             q_new.parent = q_nearest.getcoord();
 
-            nearby_nodes = nodes.nearby(q_new);
+            nearby_nodes = nearby(q_new);
 
-            q_new = revise_nearest(nearby_nodes,q_new);
-            nodes.add(q_new);
-            nodes.rewire(q_new,nodes_list);
+            q_new = revise_nearest();
+            node_list.push_back(q_new);
+            rewire();
         }
 
         return node_list
@@ -130,6 +132,41 @@ Node Planner::random_point()
     p_rand = [x_rand,y_rand];
 
     return q_new;
+}
+
+void Planner::revise_nearest(){
+ for (auto i : nearby_nodes){
+    new_cost = i.cost + distance_euc(q_new,i);
+    if (new_cost < q_new.cost){
+        q_ = i;
+        q_new.cost = new_cost;
+        }
+    }
+}
+
+void Planner::rewire(vector<Node> nearby_nodes){
+    double temp_cost;
+     for (auto i : nearby_nodes){
+         if (i == q_nearest) continue ;
+         temp_cost = (q_new.cost + euc_dist(q_new,i));
+         if (i.cost > temp_cost){
+            //  if collision_check(q_new,i,obstacle)
+                 i.parent.x = q_new.x;
+                 i.parent.y = q_new.y;
+                 i.cost = temp_cost;
+         }
+     }
+//  % Modifying the new nearby nodes in the actual node list
+    for {auto i: nearby_nodes){
+        if ((i.parent.x == q_new.x && i.parent.y == q_new.y)  && (i != q_nearest)){
+            for (j : node_list){
+                if (j == i){ //%& collision_check(q_new.coord,near_nodes(i).coord,obstacle)
+                    j.parent = i.parent;
+                    i.cost = i.cost;
+                }
+            }
+        }
+    }
 }
 
 int main ()
