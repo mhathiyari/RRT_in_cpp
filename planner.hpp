@@ -1,7 +1,7 @@
 #include <iostream>
 #include <math.h>
 #include <limits>
-#include <points.hpp>
+#include <point.hpp>
 
 struct Planner_params
 {
@@ -11,14 +11,14 @@ struct Planner_params
     double iterations;
     int width;
     int height;
-}
+};
 struct Node 
 {
     State state;
     float input;
     float cost;
     Point parent;
-}
+};
 class planner
 {
     Planner_params params;
