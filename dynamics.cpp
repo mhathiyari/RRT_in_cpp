@@ -1,32 +1,28 @@
-#include "planner.hpp"
-
-using namespace Eigen;
-using namespace std;
-class Dynamics
-{
-Matrix<double,5,1> dynamics( Matrix<double,5,1> state ,double s);
-
-public:
-void new_state(Node q_old, double input, double time);
-};
-void Dynamics::new_state(Node q_old, double input, double time){
+#include"dynamics.hpp"
+Node Dynamics::new_state(Node q_old, double input, double time){
  //  RK4
- double dt = 0.01;
- Matrix<double,5,1> state,k1,k2,k3,k4;
- state(0,0) = q_old.x;
- state(1,0) = q_old.y;
- state(2,0) = q_old.theta;
- state(3,0) = q_old.vy;
- state(4,0) = q_old.r;
+    double dt = 0.01;
+    Matrix<double,5,1> state,k1,k2,k3,k4;
+    state(0,0) = q_old.x;
+    state(1,0) = q_old.y;
+    state(2,0) = q_old.theta;
+    state(3,0) = q_old.vy;
+    state(4,0) = q_old.theta_dot;
 
- for (double i = 0,i<=dt; i+=0.5){
- k1  = dynamics(state ,s);
- k2 = dynamics(state +k1 /2,s);
- k3 = dynamics(state +k2 ./2,s);
- k4 = dynamics(state +k3 ,s);
- 
- state  = state  + dt/6*(k1 +2*k2 +2*k3 +k4 );
- }
+    for (double i = 0;i<=dt; i+=0.5){
+    k1  = dynamics(state, input);
+    k2 = dynamics(state +k1/2, input);
+    k3 = dynamics(state +k2/2, input);
+    k4 = dynamics(state +k3 , input);
+    
+    state  = state  + dt/6*(k1 +2*k2 +2*k3 +k4 );
+    }
+    q_old.x = state(0,0);
+    q_old.y = state(1,0);
+    q_old.theta =state(2,0);
+    q_old.vy = state(3,0);
+    q_old.theta_dot =  state(4,0);
+    return q_old;
 // Old code for generating point list for the path==========
 //  point_list(point_indx,:) = q_old ;
 //  point_indx = 1 + point_indx;
@@ -34,7 +30,7 @@ void Dynamics::new_state(Node q_old, double input, double time){
 //  q_f  = q_old ;
 }
 
-Matrix<double,5,1> Dynamics::dynamics(Matrix<double,5,1> state ,double s)
+Matrix<double,5,1> Dynamics::dynamics(Matrix<double,5,1> state ,double u)
 {
 double mass = 760; // TODO make a seprate place to define constants and see what are better ways to declare
 double lf = 1.025;

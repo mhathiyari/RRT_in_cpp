@@ -1,48 +1,10 @@
 #include "planner.hpp"
-#include<Eigen/Dense>
+
 using namespace std;
+using namespace Eigen;
+
 double euc_dist(Node q1, Node q2);
-typedef struct Planner_params
-{
-    Point origin;
-    Point goal;
-    MatrixXd obstacle;
-    double iterations;
-    int width;
-    int height;
-}planner_params;
 
-typedef struct node 
-{
-    double x; //Need to make a state struct do can use it for any dynamics
-    double y;
-    double theta;
-    double vy;
-    double theta_dot;
-    double input;
-    double cost;
-    Point parent;
-    Point getcoord(){
-        Point A(this->x,this->y);
-        return A;
-    }
-}Node;
-class Planner
-{
-    planner_params params;
-    Node q_new;
-    Node q_nearest;
-    Node q_goal;
-    vector<Node> node_list;
-    Node random_point();
-    Node nearest_pt();
-    void rewire(vector<Node> nearby_nodes);
-
-    Node steer();
-    public:
-    Planner(planner_params params);
-    vector<Node> RRTstar();
-};
 Planner::Planner(planner_params params_in)
 { 
     params = params_in;
@@ -64,13 +26,15 @@ Node Planner::steer()
 {
 
     Node q_f,q_possible;
+    Dynamics A;
     double best_angle = 0 ; 
     double steering_max = 1.02;
     double steering_inc = 0.17;
     double dist = numeric_limits<double>::infinity();
+    double new_cost;
     for(double s = -steering_max ; s <= steering_max ; s =+ steering_inc)
     {
-        q_f = new_state(q_nearest,s,0.5);     
+        q_f = A.new_state(q_nearest,s,0.5);     
         new_cost = euc_dist(q_f ,q_nearest);
         if(new_cost < dist){
             dist = new_cost;
@@ -102,22 +66,19 @@ Node Planner::random_point()
 {   
     default_random_engine generator;
     uniform_int_distribution<int> distribution(0,1);
-    double offset[2] = [0;0] - [params.width;params.height]/2;
-    q_new.x = width*distribution(generator)+offset(1);
-    y_rand = height*distribution(generator)+offset(2);
-    p_rand = [x_rand,y_rand];
-
-    return q_new;
+    q_new.x = params.width*distribution(generator)+(0-params.width/2);
+    q_new.y= params.height*distribution(generator)+(0-params.height/2);
 }
 
-void Planner::revise_nearest(){
- for (auto i : nearby_nodes){
-    new_cost = i.cost + distance_euc(q_new,i);
-    if (new_cost < q_new.cost){
-        q_ = i;
-        q_new.cost = new_cost;
+void Planner::revise_nearest(vector<Node> nearby_nodes){
+    double new_cost;
+    for (auto i : nearby_nodes){
+        new_cost = i.cost + euc_dist(q_new,i);
+        if (new_cost < q_new.cost){
+            q_new.parent = i.parent;
+            q_new.cost = new_cost;
+            }
         }
-    }
 }
 
 void Planner::rewire(vector<Node> nearby_nodes){
@@ -135,7 +96,7 @@ void Planner::rewire(vector<Node> nearby_nodes){
 //  % Modifying the new nearby nodes in the actual node list
     for (auto i: nearby_nodes){
         if ((i.parent.x == q_new.x && i.parent.y == q_new.y)  && (i != q_nearest)){
-            for (j : node_list){
+            for (auto j : node_list){
                 if (j == i){ //%& collision_check(q_new.coord,near_nodes(i).coord,obstacle)
                     j.parent = i.parent;
                     i.cost = i.cost;
@@ -146,7 +107,21 @@ void Planner::rewire(vector<Node> nearby_nodes){
 }
 
 double euc_dist(Node q1, Node q2){
-    return sqrt((q1.x-q2.x)^2+(q1.y-q2.y)^2);
+    return (sqrt(pow((q1.x-q2.x),2)+pow((q1.y-q2.y),2)));
+}
+
+vector<Node> Planner::nearby() {
+
+    vector<Node> near_nodes;
+    double dist;
+    int r = 1;
+    for (auto i : node_list ){
+    // %      if nodes(i).coord == q_new.parent; continue; end
+        dist = euc_dist(q_new,i);
+        if (dist < r )//&& collision_check(q_new.coord,nodes(i).coord,obstacle)
+            {near_nodes.push_back(i);}
+    }
+    return near_nodes;
 }
 
 vector<Node> Planner::RRTstar()
@@ -166,29 +141,38 @@ vector<Node> Planner::RRTstar()
 
             nearby_nodes = nearby();
 
-            revise_nearest();
+            revise_nearest(nearby_nodes);
+
             node_list.push_back(q_new);
-            rewire();
+
+            rewire(nearby_nodes);
         }
 
         return node_list;
-}
-
-vector<Node> Planner::nearby(){
-
-    vector<Node> near_nodes;
-    r = 1;
-    for (i : node_list ){
-    // %      if nodes(i).coord == q_new.parent; continue; end
-        dist = euc_dist(q_new,i);
-        if (dist < r )//&& collision_check(q_new.coord,nodes(i).coord,obstacle)
-            near_nodes.push_back(i);
     }
-
 }
+
+
 int main ()
 {
-    
+    //Driver Code
+    planner_params A;
+    A.origin = Point(200,200);
+    A.goal = Point(-400,-400);
+    MatrixXd obstacle(4,4);
+    obstacle.row(0) << 1,1,-1,1;
+    obstacle.row(1) << 1,1,-1,1;
+    obstacle.row(2) << 1,1,-1,1;
+    obstacle.row(3) << 1,1,-1,1;
+    // obstacle.block(1,0,1,3) = {-1,1,-1,-1};
+    // obstacle.block(2,0,2,3) = {-1,-1,1,-1};
+    // obstacle.block(3,0,3,3) = {1,-1,1,1};
+    A.obstacle = obstacle;
+    A.iterations = 800;
+    A.width = 1000;
+    A.height = 1000;
+    Planner Ab(A);
+    Ab.RRTstar();
 
     return 0;
 }

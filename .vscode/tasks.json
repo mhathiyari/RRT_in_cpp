@@ -9,9 +9,9 @@
             "command": "g++",
             "args": [
                 "-g",
-                "intersecting_lines.cpp",
+                "planner.cpp",
                 "-o",
-                "intersecting_lines.exe"
+                "planner.exe"
             ],
             "group": {
                 "kind": "build",

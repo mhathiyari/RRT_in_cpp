@@ -8,6 +8,10 @@ struct Point{
     x = x_;
     y = y_;
   }
+   Point(){
+    x = 0;
+    y = 0;
+  }
 
   void print() const{
     cout << "X, Y: " << x << ", " << y << endl;
