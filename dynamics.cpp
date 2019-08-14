@@ -1,28 +1,25 @@
-#include<Eigen/Dense>
-#include<math.h>
-#include<iostream>
 #include "planner.hpp"
+
 using namespace Eigen;
 using namespace std;
 class Dynamics
 {
-Matrix<float,5,1> dynamics( Matrix<float,5,1> state ,float s);
+Matrix<double,5,1> dynamics( Matrix<double,5,1> state ,double s);
 
 public:
-void new_state(Node q_old, float input, float time);
+void new_state(Node q_old, double input, double time);
 };
-void Dynamics::new_state(Node q_old, float input, float time){
+void Dynamics::new_state(Node q_old, double input, double time){
  //  RK4
- float dt = 0.01;
- Matrix<float,5,1> state,k1,k2,k3,k4;
+ double dt = 0.01;
+ Matrix<double,5,1> state,k1,k2,k3,k4;
  state(0,0) = q_old.x;
  state(1,0) = q_old.y;
  state(2,0) = q_old.theta;
  state(3,0) = q_old.vy;
  state(4,0) = q_old.r;
 
-
- for (float i = 0,i<=dt; i+=0.5){
+ for (double i = 0,i<=dt; i+=0.5){
  k1  = dynamics(state ,s);
  k2 = dynamics(state +k1 /2,s);
  k3 = dynamics(state +k2 ./2,s);
@@ -37,39 +34,39 @@ void Dynamics::new_state(Node q_old, float input, float time){
 //  q_f  = q_old ;
 }
 
-Matrix<float,5,1> Dynamics::dynamics( Matrix<float,5,1> state ,float s)
+Matrix<double,5,1> Dynamics::dynamics(Matrix<double,5,1> state ,double s)
 {
-float mass = 760; // TODO make a seprate place to define constants and see what are better ways to declare
-float lf = 1.025;
-float lr = 0.787;
-float inertia = 1490.3;
-float cf = 5146/2;
-float cr = 3430/2;
-float speed = 10.1;
+double mass = 760; // TODO make a seprate place to define constants and see what are better ways to declare
+double lf = 1.025;
+double lr = 0.787;
+double inertia = 1490.3;
+double cf = 5146/2;
+double cr = 3430/2;
+double speed = 10.1;
   
 
-float theta = state(3,0);
-float vy = state(4,0);
-float r = state(5,0);
+double theta = state(3,0);
+double vy = state(4,0);
+double r = state(5,0);
  
-float cosInput = cos(u);
-float cosTheta = cos(theta);
-float sinTheta = sin(theta);
+double cosInput = cos(u);
+double cosTheta = cos(theta);
+double sinTheta = sin(theta);
 
-float a = -(cf*cosInput+cr)/(mass*speed);
-float b = (-lf*cf*cosInput+lr*cr)/(mass*speed)-speed;
-float c = (-lf*cf*cosInput+lr*cr)/(inertia*speed);
-float d = -(lf*lf*cf*cosInput+lr*lr*cr)/(inertia*speed);
-float e = cf*cosInput/mass;
-float f = lf*cf*cosInput/inertia;
+double a = -(cf*cosInput+cr)/(mass*speed);
+double b = (-lf*cf*cosInput+lr*cr)/(mass*speed)-speed;
+double c = (-lf*cf*cosInput+lr*cr)/(inertia*speed);
+double d = -(lf*lf*cf*cosInput+lr*lr*cr)/(inertia*speed);
+double e = cf*cosInput/mass;
+double f = lf*cf*cosInput/inertia;
 
-float vyDot = a*vy + c*r + e*u;
-float rDot = b*vy + d*r + f*u;
-float xDot = speed*cosTheta - vy*sinTheta;
-float yDot = speed*sinTheta + vy*cosTheta;
-float thetaDot = r;
+double vyDot = a*vy + c*r + e*u;
+double rDot = b*vy + d*r + f*u;
+double xDot = speed*cosTheta - vy*sinTheta;
+double yDot = speed*sinTheta + vy*cosTheta;
+double thetaDot = r;
  
-Matrix<float,5,1> x_dot;
+Matrix<double,5,1> x_dot;
 x_dot(0,0) = xDot;
 x_dot(1,0) = yDot;
 x_dot(2,0) = thetaDot;

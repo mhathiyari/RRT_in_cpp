@@ -59,7 +59,7 @@
                 "_DEBUG",
                 "UNICODE"
             ],
-            "intelliSenseMode": "msvc-x64",
+            "intelliSenseMode": "gcc-x64",
             "browse": {
                 "path": [
                     "${workspaceRoot}",
@@ -69,7 +69,7 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },
-            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.13.26128/bin/Hostx64/x64/cl.exe",
+            "compilerPath": "C:/MinGW/bin/gcc.exe",
             "cStandard": "c11",
             "cppStandard": "c++17"
         }

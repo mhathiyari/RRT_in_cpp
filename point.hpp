@@ -1,30 +1,28 @@
 #include <iostream>
-#include <math.h>
-#include <limits>
 using namespace std;
 
 struct Point{
-  double x_;
-  double y_;
-  Point(const double x,const double y){
-    x_ = x;
-    y_ = y;
+  double x;
+  double y;
+  Point(const double x_,const double y_){
+    x = x_;
+    y = y_;
   }
 
   void print() const{
-    cout << "X, Y: " << x_ << ", " << y_ << endl;
+    cout << "X, Y: " << x << ", " << y << endl;
   }
  
   Point operator-(const Point& A) const{
-    return Point(x_-A.x_, y_-A.y_);
+    return Point(x-A.x, y-A.y);
   }
  
   Point operator+(const Point& A) const{
-    return Point(x_+A.x_, y_+A.y_);
+    return Point(x+A.x, y+A.y);
   }
  
   Point operator*(const double a) const{
-    return Point(x_*a, y_*a);
+    return Point(x*a, y*a);
   }
  
 };
