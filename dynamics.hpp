@@ -1,22 +1,27 @@
 #ifndef dynamics_h
 #define dynamics_h
 
-#include "planner.hpp"
+// #include "planner.hpp"
+#include "point.hpp"
 #include<Eigen/Dense>
+#include<vector>
+#include<random>
+#include <math.h>
+#include <limits>
 using namespace std;
 using namespace Eigen;
 
 
 
-typedef struct Planner_params
-{
-    Point origin;
-    Point goal;
-    MatrixXd obstacle;
-    double iterations;
-    int width;
-    int height;
-}planner_params;
+// typedef struct Planner_params
+// {
+//     Point origin;
+//     Point goal;
+//     MatrixXd obstacle;
+//     double iterations;
+//     int width;
+//     int height;
+// }planner_params;
 
 typedef struct node 
 {
@@ -35,7 +40,7 @@ typedef struct node
     bool operator==(const node& A) const{
     return (x==A.x&&y==A.y);}
     bool operator!=(const node& A) const{
-    return (x!=A.x&&y!=A.y);}
+    return (x!=A.x||y!=A.y);}
     void operator=(const node& A) {
     x = A.x;
     y = A.y;
@@ -53,7 +58,8 @@ class Dynamics
 Matrix<double,5,1> dynamics( Matrix<double,5,1> state ,double s);
 
 public:
-Dynamics(){};
+Dynamics(){ };
 Node new_state(Node q_old, double input, double time);//
+friend class Planner;
 };
 #endif

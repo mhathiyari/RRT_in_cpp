@@ -1,4 +1,5 @@
 #include"dynamics.hpp"
+// #include "planner.hpp"
 Node Dynamics::new_state(Node q_old, double input, double time){
  //  RK4
     double dt = 0.01;
@@ -9,7 +10,7 @@ Node Dynamics::new_state(Node q_old, double input, double time){
     state(3,0) = q_old.vy;
     state(4,0) = q_old.theta_dot;
 
-    for (double i = 0;i<=dt; i+=0.5){
+    for (double i = 0;i<=0.5; i+=dt){
     k1  = dynamics(state, input);
     k2 = dynamics(state +k1/2, input);
     k3 = dynamics(state +k2/2, input);
@@ -41,9 +42,9 @@ double cr = 3430/2;
 double speed = 10.1;
   
 
-double theta = state(3,0);
-double vy = state(4,0);
-double r = state(5,0);
+double theta = state(2,0);
+double vy = state(3,0);
+double r = state(4,0); //theta_dot
  
 double cosInput = cos(u);
 double cosTheta = cos(theta);
@@ -67,7 +68,7 @@ x_dot(0,0) = xDot;
 x_dot(1,0) = yDot;
 x_dot(2,0) = thetaDot;
 x_dot(3,0) = vyDot;
-x_dot(4,0) = rDot;
+x_dot(4,0) = rDot; //theta_dot_dot
  
 return x_dot;
 }

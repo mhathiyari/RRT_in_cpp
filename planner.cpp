@@ -32,7 +32,7 @@ Node Planner::steer()
     double steering_inc = 0.17;
     double dist = numeric_limits<double>::infinity();
     double new_cost;
-    for(double s = -steering_max ; s <= steering_max ; s =+ steering_inc)
+    for(double s = -steering_max ; s <= steering_max ; )
     {
         q_f = A.new_state(q_nearest,s,0.5);     
         new_cost = euc_dist(q_f ,q_nearest);
@@ -41,15 +41,16 @@ Node Planner::steer()
             q_possible = q_f;
             q_possible.input = s; //maybe wont end up needing this
         }
+        s = s + steering_inc;
     }
     q_new = q_possible;        
 }
 Node Planner::nearest_pt()
 {
     double new_cost,cost_near;
-    q_new.cost = euc_dist(q_new ,node_list[1]);
-    q_nearest = node_list[1];
-    cost_near = node_list[1].cost;
+    q_new.cost = euc_dist(q_new ,node_list[0]);
+    q_nearest = node_list[0];
+    cost_near = node_list[0].cost;
 
     for(auto i : node_list){
      new_cost = euc_dist(q_new ,i);
@@ -61,6 +62,7 @@ Node Planner::nearest_pt()
      }
     }
     q_new.cost += cost_near;
+    return q_nearest;
 }
 Node Planner::random_point()
 {   
@@ -68,6 +70,15 @@ Node Planner::random_point()
     uniform_int_distribution<int> distribution(0,1);
     q_new.x = params.width*distribution(generator)+(0-params.width/2);
     q_new.y= params.height*distribution(generator)+(0-params.height/2);
+    q_new.theta = 0;
+    q_new.vy = 0;
+    q_new.theta_dot = 0;
+    q_new.input = 0;
+    q_new.cost = 0;
+    q_new.parent.x = q_origin.x;
+    q_new.parent.y = q_origin.y;
+    return q_new;
+
 }
 
 void Planner::revise_nearest(vector<Node> nearby_nodes){
@@ -172,7 +183,11 @@ int main ()
     A.width = 1000;
     A.height = 1000;
     Planner Ab(A);
-    Ab.RRTstar();
+    vector<Node>node_list = Ab.RRTstar();
+    for (auto i : node_list)
+    {
+        cout<<i.x<<" "<<i.y<<endl;
+    }
 
     return 0;
 }

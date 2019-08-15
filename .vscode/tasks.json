@@ -10,6 +10,7 @@
             "args": [
                 "-g",
                 "planner.cpp",
+                "dynamics.cpp",
                 "-o",
                 "planner.exe"
             ],
