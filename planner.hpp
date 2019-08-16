@@ -68,6 +68,9 @@ class Planner
     // virtual Node new_state(Node q_old, double input, double time){};
 
 };
+
+default_random_engine generator;
+uniform_real_distribution<double> distribution(0,1);
 // struct Planner_params
 // {
 //     Point origin;

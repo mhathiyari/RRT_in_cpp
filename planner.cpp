@@ -32,7 +32,7 @@ Node Planner::steer()
     double steering_inc = 0.17;
     double dist = numeric_limits<double>::infinity();
     double new_cost;
-    for(double s = -steering_max ; s <= steering_max ; )
+    for(double s = -steering_max ; s <= steering_max ;s += steering_inc)
     {
         q_f = A.new_state(q_nearest,s,0.5);     
         new_cost = euc_dist(q_f ,q_nearest);
@@ -41,16 +41,16 @@ Node Planner::steer()
             q_possible = q_f;
             q_possible.input = s; //maybe wont end up needing this
         }
-        s = s + steering_inc;
     }
-    q_new = q_possible;        
+    q_new = q_possible;  
+    return q_new;      
 }
 Node Planner::nearest_pt()
 {
     double new_cost,cost_near;
     q_new.cost = euc_dist(q_new ,node_list[0]);
     q_nearest = node_list[0];
-    cost_near = node_list[0].cost;
+    cost_near = node_list[0].cost; // for cost of the node you are connecting to 
 
     for(auto i : node_list){
      new_cost = euc_dist(q_new ,i);
@@ -66,11 +66,9 @@ Node Planner::nearest_pt()
 }
 Node Planner::random_point()
 {   
-    default_random_engine generator;
-    uniform_int_distribution<int> distribution(0,1);
     q_new.x = params.width*distribution(generator)+(0-params.width/2);
     q_new.y= params.height*distribution(generator)+(0-params.height/2);
-    q_new.theta = 0;
+    q_new.theta =  2*M_PI*distribution(generator);
     q_new.vy = 0;
     q_new.theta_dot = 0;
     q_new.input = 0;
@@ -125,7 +123,7 @@ vector<Node> Planner::nearby() {
 
     vector<Node> near_nodes;
     double dist;
-    int r = 1;
+    int r = 500;
     for (auto i : node_list ){
     // %      if nodes(i).coord == q_new.parent; continue; end
         dist = euc_dist(q_new,i);
@@ -142,25 +140,27 @@ vector<Node> Planner::RRTstar()
     {
         q_new = random_point();
 
+        cout<<"R "<<q_new.x<<" "<<q_new.y<<endl;
         q_nearest = nearest_pt();
-
+        
+        cout<<"N "<<q_nearest.x<<" "<<q_nearest.y<<endl;
         q_new = steer();
+        cout<<"S "<<q_new.x<<" "<<q_new.y<<endl;
     
         if (euc_dist(q_new,q_nearest) < 1000) //collision_check(q_new,q_nearest) && 
         {
             q_new.parent = q_nearest.getcoord();
 
-            nearby_nodes = nearby();
+            //nearby_nodes = nearby();
 
-            revise_nearest(nearby_nodes);
+            //revise_nearest(nearby_nodes);
 
             node_list.push_back(q_new);
 
-            rewire(nearby_nodes);
+            //rewire(nearby_nodes);
         }
-
-        return node_list;
     }
+    return node_list;
 }
 
 
@@ -179,7 +179,7 @@ int main ()
     // obstacle.block(2,0,2,3) = {-1,-1,1,-1};
     // obstacle.block(3,0,3,3) = {1,-1,1,1};
     A.obstacle = obstacle;
-    A.iterations = 800;
+    A.iterations = 5000;
     A.width = 1000;
     A.height = 1000;
     Planner Ab(A);
