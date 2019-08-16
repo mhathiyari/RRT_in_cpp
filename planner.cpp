@@ -34,8 +34,8 @@ Node Planner::steer()
     double new_cost;
     for(double s = -steering_max ; s <= steering_max ;s += steering_inc)
     {
-        q_f = A.new_state(q_nearest,s,0.5);     
-        new_cost = euc_dist(q_f ,q_nearest);
+        q_f = A.new_state(q_nearest,s,5);     
+        new_cost = euc_dist(q_f ,q_new);
         if(new_cost < dist){
             dist = new_cost;
             q_possible = q_f;
@@ -179,7 +179,7 @@ int main ()
     // obstacle.block(2,0,2,3) = {-1,-1,1,-1};
     // obstacle.block(3,0,3,3) = {1,-1,1,1};
     A.obstacle = obstacle;
-    A.iterations = 5000;
+    A.iterations = 800;
     A.width = 1000;
     A.height = 1000;
     Planner Ab(A);

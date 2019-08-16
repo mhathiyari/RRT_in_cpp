@@ -10,7 +10,7 @@ Node Dynamics::new_state(Node q_old, double input, double time){
     state(3,0) = q_old.vy;
     state(4,0) = q_old.theta_dot;
 
-    for (double i = 0;i<=1; i+=dt){
+    for (double i = 0;i<=time; i+=dt){
     k1  = dynamics(state, input);
     k2 = dynamics(state +k1/2, input);
     k3 = dynamics(state +k2/2, input);
