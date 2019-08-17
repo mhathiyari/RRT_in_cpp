@@ -2,7 +2,7 @@
 #define planner_h
 
 #include "dynamics.hpp"
-
+#include <ctime>
 
 using namespace std;
 using namespace Eigen;
@@ -64,13 +64,17 @@ class Planner
     Node steer();
     Planner(planner_params params);
     vector<Node> RRTstar();
-
+    friend bool collision_check(Node qa,Node qb);
     // virtual Node new_state(Node q_old, double input, double time){};
 
 };
 
 default_random_engine generator;
 uniform_real_distribution<double> distribution(0,1);
+
+int orientation(Point p,Point q,Point r);
+bool onsegment(Point p, Point q, Point r) ;
+bool collision_check(Node qa,Node qb,MatrixXd obstacle);
 // struct Planner_params
 // {
 //     Point origin;

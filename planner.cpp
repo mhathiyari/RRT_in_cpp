@@ -39,7 +39,7 @@ Node Planner::steer()
         if(new_cost < dist){
             dist = new_cost;
             q_possible = q_f;
-            q_possible.input = s; //maybe wont end up needing this
+            q_possible.input = s; //maybe wont   up needing this
         }
     }
     q_new = q_possible;  
@@ -125,13 +125,65 @@ vector<Node> Planner::nearby() {
     double dist;
     int r = 500;
     for (auto i : node_list ){
-    // %      if nodes(i).coord == q_new.parent; continue; end
+    // %      if nodes(i).coord == q_new.parent; continue;  
         dist = euc_dist(q_new,i);
         if (dist < r )//&& collision_check(q_new.coord,nodes(i).coord,obstacle)
             {near_nodes.push_back(i);}
     }
     return near_nodes;
 }
+
+
+int orientation(Point p,Point q,Point r){
+
+    float val = (q.y - p.y) * (r.x - q.x) - 
+            (q.x - p.x) * (r.y - q.y); 
+
+    if (val == 0) return 0;  // colinear 
+
+    return (val > 0)? 1: 2;
+}
+
+bool onsegment(Point p, Point q, Point r) { 
+    if (q.x <= max(p.x, r.x) && q.x >= min(p.x, r.x) && 
+        q.y <= max(p.y, r.y) && q.y >= min(p.y, r.y)) 
+       return true; 
+  
+    return false; 
+} 
+  
+
+
+bool collision_check(Node qa,Node qb,MatrixXd obstacle){
+    int o1,o2,o3,o4;
+    bool safe = true;
+    for (int i=0;i<obstacle.rows();i++){
+        Point p1(obstacle(i,0),obstacle(i,1));
+        Point q1(obstacle(i,2),obstacle(i,3));
+
+        o1 = orientation(qb.getcoord(),qa.getcoord(),p1);
+        o2 = orientation(qb.getcoord(),qa.getcoord(),q1);
+        o3 = orientation(p1,q1,qb.getcoord());     
+        o4 = orientation(p1,q1,qa.getcoord());
+
+        if (o1 != o2 && o3 != o4)
+            return !safe ;
+        if (o1 == 0 && onsegment(qb.getcoord(),p1,qa.getcoord()))
+            return !safe ;
+
+        if (o2 == 0 && onsegment(qb.getcoord(),q1,qa.getcoord()))
+            return !safe ;
+
+        if (o3 == 0 && onsegment(p1,qb.getcoord(),q1))
+            return !safe ;
+
+        if (o4 == 0 && onsegment(p1,qa.getcoord(),q1))
+            return !safe ;
+    }
+    return safe;
+}    
+  
+
 
 vector<Node> Planner::RRTstar()
 {
@@ -140,18 +192,18 @@ vector<Node> Planner::RRTstar()
     {
         q_new = random_point();
 
-        cout<<"R "<<q_new.x<<" "<<q_new.y<<endl;
+        // cout<<"R "<<q_new.x<<" "<<q_new.y<<endl;
         q_nearest = nearest_pt();
         
-        cout<<"N "<<q_nearest.x<<" "<<q_nearest.y<<endl;
+        // cout<<"N "<<q_nearest.x<<" "<<q_nearest.y<<endl;
         q_new = steer();
-        cout<<"S "<<q_new.x<<" "<<q_new.y<<endl;
+        // cout<<"S "<<q_new.x<<" "<<q_new.y<<endl;
     
-        if (euc_dist(q_new,q_nearest) < 1000) //collision_check(q_new,q_nearest) && 
+        if (euc_dist(q_new,q_nearest) < 1000 && collision_check(q_new,q_nearest,params.obstacle)) 
         {
             q_new.parent = q_nearest.getcoord();
 
-            //nearby_nodes = nearby();
+            // nearby_nodes = nearby();
 
             //revise_nearest(nearby_nodes);
 
@@ -165,7 +217,8 @@ vector<Node> Planner::RRTstar()
 
 
 int main ()
-{
+{   
+    clock_t start_time = clock();
     //Driver Code
     planner_params A;
     A.origin = Point(200,200);
@@ -178,7 +231,7 @@ int main ()
     // obstacle.block(1,0,1,3) = {-1,1,-1,-1};
     // obstacle.block(2,0,2,3) = {-1,-1,1,-1};
     // obstacle.block(3,0,3,3) = {1,-1,1,1};
-    A.obstacle = obstacle;
+    A.obstacle = obstacle*100;
     A.iterations = 800;
     A.width = 1000;
     A.height = 1000;
@@ -186,8 +239,12 @@ int main ()
     vector<Node>node_list = Ab.RRTstar();
     for (auto i : node_list)
     {
+        if(i.x<100 && i.x>-100 && i.y<100 && i.y>-100){
+            cout<<i.x<<" "<<i.y<<" obstacle"<<endl;
+        }else{
         cout<<i.x<<" "<<i.y<<endl;
+        }
     }
-
+    cout<<"Time "<<(clock()-start_time)/CLOCKS_PER_SEC<<" s";
     return 0;
 }
