@@ -18,9 +18,14 @@ Node Dynamics::new_state(Node q_old, double input, double time){
     
     state  = state  + dt/6*(k1 +2*k2 +2*k3 +k4 );
     }
+    double theta = state(2,0);
+    theta = fmod(theta,2*3.14);
+    if (theta < 0)
+    theta += 2*3.14;
+
     q_old.x = state(0,0);
     q_old.y = state(1,0);
-    q_old.theta =state(2,0);
+    q_old.theta =theta;
     q_old.vy = state(3,0);
     q_old.theta_dot =  state(4,0);
     return q_old;
@@ -43,6 +48,12 @@ double speed = 20.1;
   
 
 double theta = state(2,0);
+
+theta = fmod(theta,2*3.14);
+if (theta < 0)
+    theta += 2*3.14;
+
+
 double vy = state(3,0);
 double r = state(4,0); //theta_dot
  

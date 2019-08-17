@@ -29,17 +29,18 @@ Node Planner::steer()
     Dynamics A;
     double best_angle = 0 ; 
     double steering_max = 1.02;
-    double steering_inc = 0.17;
+    double steering_inc = steering_max/20;
     double dist = numeric_limits<double>::infinity();
     double new_cost;
     for(double s = -steering_max ; s <= steering_max ;s += steering_inc)
     {
-        q_f = A.new_state(q_nearest,s,5);     
+        q_f = A.new_state(q_nearest,s,0.5);     
         new_cost = euc_dist(q_f ,q_new);
         if(new_cost < dist){
             dist = new_cost;
             q_possible = q_f;
             q_possible.input = s; //maybe wont   up needing this
+            q_possible.cost = new_cost; //maybe wont   up needing this
         }
     }
     q_new = q_possible;  
@@ -225,9 +226,9 @@ int main ()
     A.goal = Point(-400,-400);
     MatrixXd obstacle(4,4);
     obstacle.row(0) << 1,1,-1,1;
-    obstacle.row(1) << 1,1,-1,1;
-    obstacle.row(2) << 1,1,-1,1;
-    obstacle.row(3) << 1,1,-1,1;
+    obstacle.row(1) << -1,1,-1,-1;
+    obstacle.row(2) << -1,-1,1,-1;
+    obstacle.row(3) << 1,-1,1,1;
     // obstacle.block(1,0,1,3) = {-1,1,-1,-1};
     // obstacle.block(2,0,2,3) = {-1,-1,1,-1};
     // obstacle.block(3,0,3,3) = {1,-1,1,1};
@@ -237,14 +238,27 @@ int main ()
     A.height = 1000;
     Planner Ab(A);
     vector<Node>node_list = Ab.RRTstar();
+    //---------inlcude only for code evaluation---------//
+    std::ofstream nodelist;
+    nodelist.open ("nodelist.csv");
+    nodelist<<"x"<<","<<"y"<<","<<"theta"<<",";
+    nodelist<<"vy"<<","<<"theta_dot"<<","<<"input"<<",";
+    nodelist<<"cost"<<","<<"x"<<","<<".y"<<"\n";
+
     for (auto i : node_list)
     {
         if(i.x<100 && i.x>-100 && i.y<100 && i.y>-100){
             cout<<i.x<<" "<<i.y<<" obstacle"<<endl;
         }else{
-        cout<<i.x<<" "<<i.y<<endl;
+            cout<<i.x<<" "<<i.y<<endl;
+            nodelist<<i.x<<","<<i.y<<","<<i.theta<<",";
+            nodelist<<i.vy<<","<<i.theta_dot<<","<<i.input<<",";
+            nodelist<<i.cost<<","<<i.parent.x<<","<<i.parent.y<<"\n";
         }
     }
+    nodelist.close();
     cout<<"Time "<<(clock()-start_time)/CLOCKS_PER_SEC<<" s";
+
+    //---------inlcude only for code evaluation---------//
     return 0;
 }
