@@ -3,6 +3,7 @@
         "iostream": "cpp",
         "vector": "cpp",
         "dense": "cpp",
-        "ctime": "cpp"
+        "ctime": "cpp",
+        "ostream": "cpp"
     }
 }

@@ -28,12 +28,14 @@ Node Planner::steer()
     Node q_f,q_possible;
     Dynamics A;
     double best_angle = 0 ; 
-    double steering_max = 1.02;
-    double steering_inc = steering_max/20;
+    float steering_max = 1.02;
+    float steering_inc = steering_max/21;
     double dist = numeric_limits<double>::infinity();
     double new_cost;
-    for(double s = -steering_max ; s <= steering_max ;s += steering_inc)
+    for(float s = -steering_max ; s <= steering_max ;s += steering_inc)
     {
+        if (abs(s)<steering_inc)
+            s = 0;
         q_f = A.new_state(q_nearest,s,0.5);     
         new_cost = euc_dist(q_f ,q_new);
         if(new_cost < dist){
@@ -199,6 +201,7 @@ vector<Node> Planner::RRTstar()
         // cout<<"N "<<q_nearest.x<<" "<<q_nearest.y<<endl;
         q_new = steer();
         // cout<<"S "<<q_new.x<<" "<<q_new.y<<endl;
+
     
         if (euc_dist(q_new,q_nearest) < 1000 && collision_check(q_new,q_nearest,params.obstacle)) 
         {
