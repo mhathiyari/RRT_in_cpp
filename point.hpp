@@ -1,3 +1,7 @@
+/*
+#ifndef __POINT_H__
+#define __POINT_H__
+
 #include <iostream>
 using namespace std;
 
@@ -34,3 +38,6 @@ struct Point{
    y = A.y;
   }
 };
+
+#endif 
+*/

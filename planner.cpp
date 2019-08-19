@@ -19,6 +19,10 @@ Planner::Planner(planner_params params_in)
     q_origin.parent.x = params.origin.x;
     q_origin.parent.y = params.origin.y;
     node_list.push_back(q_origin);
+    
+    #ifdef VISUALIZATION
+    visualizer.plannerParamsIn(params); 
+    #endif
 }
 
 
@@ -191,7 +195,7 @@ bool collision_check(Node qa,Node qb,MatrixXd obstacle){
 vector<Node> Planner::RRTstar()
 {
     vector<Node> nearby_nodes;
-    for (int i = 1;i < params.iterations ; i++)
+    for (int i = 0;i < params.iterations ; i++)
     {
         q_new = random_point();
 
@@ -215,6 +219,12 @@ vector<Node> Planner::RRTstar()
 
             //rewire(nearby_nodes);
         }
+
+        #ifdef VISUALIZATION
+        visualizer.drawMap(params, node_list); 
+        #endif 
+
+        cout << "step: " << i << endl; 
     }
     return node_list;
 }
@@ -236,12 +246,13 @@ int main ()
     // obstacle.block(2,0,2,3) = {-1,-1,1,-1};
     // obstacle.block(3,0,3,3) = {1,-1,1,1};
     A.obstacle = obstacle*100;
-    A.iterations = 800;
+    A.iterations = 1000;
     A.width = 1000;
     A.height = 1000;
     Planner Ab(A);
     vector<Node>node_list = Ab.RRTstar();
     //---------inlcude only for code evaluation---------//
+    /*
     std::ofstream nodelist;
     nodelist.open ("nodelist.csv");
     nodelist<<"x"<<","<<"y"<<","<<"theta"<<",";
@@ -260,8 +271,10 @@ int main ()
         }
     }
     nodelist.close();
-    cout<<"Time "<<(clock()-start_time)/CLOCKS_PER_SEC<<" s";
-
+    */
+    cout<<"Time "<<(clock()-start_time)/CLOCKS_PER_SEC<<" s"<<endl;
+    char n; 
+    cin >> n; 
     //---------inlcude only for code evaluation---------//
     return 0;
 }

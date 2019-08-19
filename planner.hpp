@@ -2,23 +2,22 @@
 #define planner_h
 
 #include "dynamics.hpp"
+#include "common.hpp"
+
 //---------inlcude only for code evaluation---------//
 #include <ctime>
 #include <fstream>
+// Uncomment for visualization 
+#define VISUALIZATION 
+#ifdef VISUALIZATION
+#include "visualizer.h"
+#endif
 //--------------------------------------------------//
 
 using namespace std;
 using namespace Eigen;
 
-typedef struct Planner_params
-{
-    Point origin;
-    Point goal;
-    MatrixXd obstacle;
-    double iterations;
-    int width;
-    int height;
-}planner_params;
+
 
 // typedef struct node 
 // {
@@ -52,6 +51,8 @@ typedef struct Planner_params
 
 class Planner 
 {
+private:
+
     planner_params params;
     Node q_new;
     Node q_nearest;
@@ -63,7 +64,13 @@ class Planner
     void rewire(vector<Node> nearby_nodes);
     void revise_nearest(vector<Node> nearby_nodes);
     vector<Node> nearby();
-    public:
+
+    #ifdef VISUALIZATION
+    Visualizer visualizer; 
+    #endif
+
+public:
+    
     Node steer();
     Planner(planner_params params);
     vector<Node> RRTstar();
@@ -72,7 +79,7 @@ class Planner
 
 };
 
-default_random_engine generator;
+default_random_engine generator(time(0));
 uniform_real_distribution<double> distribution(0,1);
 
 int orientation(Point p,Point q,Point r);
