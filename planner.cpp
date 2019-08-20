@@ -9,20 +9,12 @@ Planner::Planner(planner_params params_in)
 { 
     params = params_in;
     Node q_origin;
-    q_origin.x = params.origin.x;
-    q_origin.y = params.origin.y;
-    q_origin.theta = 0;
-    q_origin.vy = 0;
-    q_origin.theta_dot = 0;
+    q_origin.setcoord(params.origin);
     q_origin.input = 0;
     q_origin.cost = 0;
     q_origin.parent.x = params.origin.x;
     q_origin.parent.y = params.origin.y;
-    q_goal.x = params.goal.x;
-    q_goal.y = params.goal.y;
-    q_goal.theta = 0;
-    q_goal.vy = 0;
-    q_goal.theta_dot = 0;
+    q_goal.setcoord(params.goal);
     q_goal.input = 0;
     q_goal.cost = 0;
     q_goal.parent.x = Infinity;
@@ -45,7 +37,7 @@ Node Planner::steer()
     {
         if (abs(s)<steering_inc)
             s = 0;
-        q_f = A.new_state(q_nearest,s,0.5);     
+        q_f.state = A.new_state(q_nearest.state,s,0.5);     
         new_cost = euc_dist(q_f ,q_new);
         if(new_cost < dist){
             dist = new_cost;
@@ -78,17 +70,14 @@ Node Planner::nearest_pt()
 }
 Node Planner::random_point()
 {   
-    q_new.x = params.width*distribution(generator)+(0-params.width/2);
-    q_new.y= params.height*distribution(generator)+(0-params.height/2);
-    q_new.theta =  2*M_PI*distribution(generator);
-    q_new.vy = 0;
-    q_new.theta_dot = 0;
+    q_new.state.x = params.width*distribution(generator)+(0-params.width/2);
+    q_new.state.y= params.height*distribution(generator)+(0-params.height/2);
+    q_new.state.random_state(distribution(generator));
     q_new.input = 0;
     q_new.cost = 0;
-    q_new.parent.x = q_origin.x;
-    q_new.parent.y = q_origin.y;
+    q_new.parent.x = q_origin.state.x;
+    q_new.parent.y = q_origin.state.y;
     return q_new;
-
 }
 
 void Planner::revise_nearest(vector<Node> nearby_nodes){
@@ -102,33 +91,33 @@ void Planner::revise_nearest(vector<Node> nearby_nodes){
         }
 }
 
-void Planner::rewire(vector<Node> nearby_nodes){
-    double temp_cost;
-     for (auto i : nearby_nodes){
-         if (i == q_nearest) continue ;
-         temp_cost = (q_new.cost + euc_dist(q_new,i));
-         if (i.cost > temp_cost){
-            //  if collision_check(q_new,i,obstacle)
-                 i.parent.x = q_new.x;
-                 i.parent.y = q_new.y;
-                 i.cost = temp_cost;
-         }
-     }
-//  % Modifying the new nearby nodes in the actual node list
-    for (auto i: nearby_nodes){
-        if ((i.parent.x == q_new.x && i.parent.y == q_new.y)  && (i != q_nearest)){
-            for (auto j : node_list){
-                if (j == i){ //%& collision_check(q_new.coord,near_nodes(i).coord,obstacle)
-                    j.parent = i.parent;
-                    i.cost = i.cost;
-                }
-            }
-        }
-    }
-}
+// void Planner::rewire(vector<Node> nearby_nodes){
+//     double temp_cost;
+//      for (auto i : nearby_nodes){
+//          if (i == q_nearest) continue ;
+//          temp_cost = (q_new.cost + euc_dist(q_new,i));
+//          if (i.cost > temp_cost){
+//             //  if collision_check(q_new,i,obstacle)
+//                  i.parent.x = q_new.x;
+//                  i.parent.y = q_new.y;
+//                  i.cost = temp_cost;
+//          }
+//      }
+// //  % Modifying the new nearby nodes in the actual node list
+//     for (auto i: nearby_nodes){
+//         if ((i.parent.x == q_new.x && i.parent.y == q_new.y)  && (i != q_nearest)){
+//             for (auto j : node_list){
+//                 if (j == i){ //%& collision_check(q_new.coord,near_nodes(i).coord,obstacle)
+//                     j.parent = i.parent;
+//                     i.cost = i.cost;
+//                 }
+//             }
+//         }
+//     }
+// }
 
 double euc_dist(Node q1, Node q2){
-    return (sqrt(pow((q1.x-q2.x),2)+pow((q1.y-q2.y),2)));
+    return (q1.state.cost(q2.state));
 }
 
 vector<Node> Planner::nearby() {
@@ -275,15 +264,14 @@ int main ()
     obstacle.row(1) << -1,1,-1,-1;
     obstacle.row(2) << -1,-1,1,-1;
     obstacle.row(3) << 1,-1,1,1;
-    // obstacle.block(1,0,1,3) = {-1,1,-1,-1};
-    // obstacle.block(2,0,2,3) = {-1,-1,1,-1};
-    // obstacle.block(3,0,3,3) = {1,-1,1,1};
+
     A.obstacle = obstacle*100;
-    A.iterations = 8000;
+    A.iterations = 800;
     A.width = 1000;
     A.height = 1000;
     Planner Ab(A);
     vector<Node>node_list = Ab.RRTstar();
+    
     //---------inlcude only for code evaluation---------//
     std::ofstream nodelist;
     nodelist.open ("nodelist.csv");
@@ -293,12 +281,12 @@ int main ()
 
     for (auto i : node_list)
     {
-        if(i.x<100 && i.x>-100 && i.y<100 && i.y>-100){
-            cout<<i.x<<" "<<i.y<<" obstacle"<<endl;
+        if(i.state.x<100 && i.state.x>-100 && i.state.y<100 && i.state.y>-100){
+            cout<<i.state.x<<" "<<i.state.y<<" obstacle"<<endl;
         }else{
-            cout<<i.x<<" "<<i.y<<endl;
-            nodelist<<i.x<<","<<i.y<<","<<i.theta<<",";
-            nodelist<<i.vy<<","<<i.theta_dot<<","<<i.input<<",";
+            cout<<i.state.x<<" "<<i.state.y<<endl;
+            nodelist<<i.state.x<<","<<i.state.y<<","<<i.state.theta<<",";
+            nodelist<<i.state.vy<<","<<i.state.theta_dot<<","<<i.input<<",";
             nodelist<<i.cost<<","<<i.parent.x<<","<<i.parent.y<<"\n";
         }
     }
@@ -306,16 +294,16 @@ int main ()
     nodelist.open ("goal.csv");
     nodelist<<"x"<<","<<"y"<<","<<"theta"<<",";
     nodelist<<"vy"<<","<<"theta_dot"<<","<<"input"<<",";
-    nodelist<<"cost"<<","<<"x"<<","<<".y"<<"\n";
+    nodelist<<"cost"<<","<<"x"<<","<<".state.y"<<"\n";
 
     for (auto i : Ab.path_goal)
     {
-        if(i.x<100 && i.x>-100 && i.y<100 && i.y>-100){
-            cout<<i.x<<" "<<i.y<<" obstacle"<<endl;
+        if(i.state.x<100 && i.state.x>-100 && i.state.y<100 && i.state.y>-100){
+            cout<<i.state.x<<" "<<i.state.y<<" obstacle"<<endl;
         }else{
-            cout<<i.x<<" "<<i.y<<endl;
-            nodelist<<i.x<<","<<i.y<<","<<i.theta<<",";
-            nodelist<<i.vy<<","<<i.theta_dot<<","<<i.input<<",";
+            cout<<i.state.x<<" "<<i.state.y<<endl;
+            nodelist<<i.state.x<<","<<i.state.y<<","<<i.state.theta<<",";
+            nodelist<<i.state.vy<<","<<i.state.theta_dot<<","<<i.input<<",";
             nodelist<<i.cost<<","<<i.parent.x<<","<<i.parent.y<<"\n";
         }
     }

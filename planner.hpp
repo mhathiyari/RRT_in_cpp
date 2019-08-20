@@ -49,7 +49,31 @@ typedef struct Planner_params
 //     parent = A.parent;
 //     }
 // }Node;
+typedef struct node 
+{
+    States state;
+    double input;
+    double cost;
+    Point parent;
 
+    Point getcoord(){
+        Point A(this->state.x,this->state.y);
+        return A;
+    }
+    bool operator==(const node& A) const{
+    return (state==A.state);}
+    bool operator!=(const node& A) const{
+    return (state!=A.state);}
+    void operator=(const node& A) {
+    state = A.state;
+    input = A.input;
+    cost = A.cost;
+    parent = A.parent;
+    }
+    void setcoord(Point& A){
+    this->state.setcoord(A);
+    }
+}Node;
 class Planner 
 {
     planner_params params;
