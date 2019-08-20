@@ -28,6 +28,9 @@ struct Point{
   Point operator*(const double a) const{
     return Point(x*a, y*a);
   }
+  bool operator==(const Point& A) const{
+   return (x == A.x && y == A.y);
+  }
    
   void operator=(const Point& A) {
    x = A.x;

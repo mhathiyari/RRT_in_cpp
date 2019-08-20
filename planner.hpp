@@ -63,7 +63,10 @@ class Planner
     void rewire(vector<Node> nearby_nodes);
     void revise_nearest(vector<Node> nearby_nodes);
     vector<Node> nearby();
+    vector<Node> goal_path();
+    bool goal_prox(Node q_new);
     public:
+    vector<Node> path_goal; 
     Node steer();
     Planner(planner_params params);
     vector<Node> RRTstar();
@@ -72,7 +75,7 @@ class Planner
 
 };
 
-default_random_engine generator;
+default_random_engine generator(time(0));
 uniform_real_distribution<double> distribution(0,1);
 
 int orientation(Point p,Point q,Point r);

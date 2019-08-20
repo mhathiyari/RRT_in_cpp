@@ -18,6 +18,15 @@ Planner::Planner(planner_params params_in)
     q_origin.cost = 0;
     q_origin.parent.x = params.origin.x;
     q_origin.parent.y = params.origin.y;
+    q_goal.x = params.goal.x;
+    q_goal.y = params.goal.y;
+    q_goal.theta = 0;
+    q_goal.vy = 0;
+    q_goal.theta_dot = 0;
+    q_goal.input = 0;
+    q_goal.cost = 0;
+    q_goal.parent.x = Infinity;
+    q_goal.parent.y = Infinity;
     node_list.push_back(q_origin);
 }
 
@@ -186,7 +195,36 @@ bool collision_check(Node qa,Node qb,MatrixXd obstacle){
     return safe;
 }    
   
+bool Planner::goal_prox(Node q_new){
+bool prox = false;
+double dist = euc_dist(q_new,q_goal);
+// cout<<dist<<endl;
+if (dist < 10)
+    prox = true;
+return prox;
+}
 
+
+// need to implement a better way to search the shortest path using a very naive approach right now
+vector<Node> Planner::goal_path(){
+    auto size_n = node_list.size();
+    q_goal.parent = node_list[size_n-1].getcoord();
+    vector<Node> path;
+    path.push_back(q_goal);
+    Node q_next = q_goal;
+    while(!(q_next.getcoord() == node_list[0].getcoord())){
+        for (auto i : node_list){
+            if (i.getcoord() == path.back().parent){
+                    q_next = i;
+                    break;
+            }
+        }
+        path.push_back(q_next);
+    }
+    reverse(path.begin(),path.end());
+    return path;
+}
+    
 
 vector<Node> Planner::RRTstar()
 {
@@ -215,6 +253,11 @@ vector<Node> Planner::RRTstar()
 
             //rewire(nearby_nodes);
         }
+        if(goal_prox(q_new)){
+            path_goal = goal_path();
+            cout<<"Number of iteration : "<<i<<endl;
+            break;
+            }
     }
     return node_list;
 }
@@ -236,7 +279,7 @@ int main ()
     // obstacle.block(2,0,2,3) = {-1,-1,1,-1};
     // obstacle.block(3,0,3,3) = {1,-1,1,1};
     A.obstacle = obstacle*100;
-    A.iterations = 800;
+    A.iterations = 8000;
     A.width = 1000;
     A.height = 1000;
     Planner Ab(A);
@@ -260,6 +303,24 @@ int main ()
         }
     }
     nodelist.close();
+    nodelist.open ("goal.csv");
+    nodelist<<"x"<<","<<"y"<<","<<"theta"<<",";
+    nodelist<<"vy"<<","<<"theta_dot"<<","<<"input"<<",";
+    nodelist<<"cost"<<","<<"x"<<","<<".y"<<"\n";
+
+    for (auto i : Ab.path_goal)
+    {
+        if(i.x<100 && i.x>-100 && i.y<100 && i.y>-100){
+            cout<<i.x<<" "<<i.y<<" obstacle"<<endl;
+        }else{
+            cout<<i.x<<" "<<i.y<<endl;
+            nodelist<<i.x<<","<<i.y<<","<<i.theta<<",";
+            nodelist<<i.vy<<","<<i.theta_dot<<","<<i.input<<",";
+            nodelist<<i.cost<<","<<i.parent.x<<","<<i.parent.y<<"\n";
+        }
+    }
+    nodelist.close();
+
     cout<<"Time "<<(clock()-start_time)/CLOCKS_PER_SEC<<" s";
 
     //---------inlcude only for code evaluation---------//
