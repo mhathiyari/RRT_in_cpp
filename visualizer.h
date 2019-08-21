@@ -17,12 +17,14 @@ private:
     int mFrame; 
     int rows; 
     int cols; 
+    int goalProx; 
 
     string mName; 
 
     void drawObstacle(const Eigen::MatrixXd& obstacle);
     void drawNodes(const vector<Node>& node_list); 
-    void wire(const vector<Node>& node_list);
+    void drawGoal(const Node& goal); 
+    void wire(const vector<Node>& node_list, const cv::Scalar color);
     void show(); 
 
 public:
@@ -32,8 +34,8 @@ public:
     int getRows();
     int getCols(); 
 
-    void drawMap(const planner_params& A, const vector<Node>& nodeList);
-
+    void drawMap(const planner_params& A, const vector<Node>& nodeList, const Node& goal);
+    void drawMapwGoalPath(const planner_params& A, const vector<Node>& nodeList, const vector<Node>& goalPath);
 };
 
 #endif

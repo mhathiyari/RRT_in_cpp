@@ -64,6 +64,8 @@ private:
     void rewire(vector<Node> nearby_nodes);
     void revise_nearest(vector<Node> nearby_nodes);
     vector<Node> nearby();
+    vector<Node> goal_path(); 
+    bool goal_prox(Node q_new);
 
     #ifdef VISUALIZATION
     Visualizer visualizer; 
@@ -71,6 +73,7 @@ private:
 
 public:
     
+    vector<Node> path_goal; 
     Node steer();
     Planner(planner_params params);
     vector<Node> RRTstar();

@@ -18,13 +18,23 @@ Planner::Planner(planner_params params_in)
     q_origin.cost = 0;
     q_origin.parent.x = params.origin.x;
     q_origin.parent.y = params.origin.y;
+
+    q_goal.x = params.goal.x;
+    q_goal.y = params.goal.y;
+    q_goal.theta = 0;
+    q_goal.vy = 0;
+    q_goal.theta_dot = 0;
+    q_goal.input = 0;
+    q_goal.cost = 0;
+    q_goal.parent.x = Infinity;
+    q_goal.parent.y = Infinity;
+
     node_list.push_back(q_origin);
     
     #ifdef VISUALIZATION
     visualizer.plannerParamsIn(params); 
     #endif
 }
-
 
 Node Planner::steer()
 {
@@ -159,8 +169,6 @@ bool onsegment(Point p, Point q, Point r) {
     return false; 
 } 
   
-
-
 bool collision_check(Node qa,Node qb,MatrixXd obstacle){
     int o1,o2,o3,o4;
     bool safe = true;
@@ -190,6 +198,35 @@ bool collision_check(Node qa,Node qb,MatrixXd obstacle){
     return safe;
 }    
   
+bool Planner::goal_prox(Node q_new){
+    bool prox = false;
+    double dist = euc_dist(q_new,q_goal);
+    // cout<<dist<<endl;
+    if (dist < params.goalProx)
+        prox = true;
+    return prox;
+}
+
+
+// need to implement a better way to search the shortest path using a very naive approach right now
+vector<Node> Planner::goal_path(){
+    auto size_n = node_list.size();
+    q_goal.parent = node_list[size_n-1].getcoord();
+    vector<Node> path;
+    path.push_back(q_goal);
+    Node q_next = q_goal;
+    while(!(q_next.getcoord() == node_list[0].getcoord())){
+        for (auto i : node_list){
+            if (i.getcoord() == path.back().parent){
+                    q_next = i;
+                    break;
+            }
+        }
+        path.push_back(q_next);
+    }
+    reverse(path.begin(),path.end());
+    return path;
+}
 
 
 vector<Node> Planner::RRTstar()
@@ -220,8 +257,19 @@ vector<Node> Planner::RRTstar()
             //rewire(nearby_nodes);
         }
 
+        if(goal_prox(q_new)){
+            path_goal = goal_path();
+
+            #ifdef VISUALIZATION
+            visualizer.drawMapwGoalPath(params, node_list, path_goal);
+            #endif
+
+            cout<<"Number of iteration : "<<i<<endl;
+            break;
+        }
+        
         #ifdef VISUALIZATION
-        visualizer.drawMap(params, node_list); 
+        visualizer.drawMap(params, node_list, q_goal); 
         #endif 
 
         cout << "step: " << i << endl; 
@@ -246,7 +294,7 @@ int main ()
     // obstacle.block(2,0,2,3) = {-1,-1,1,-1};
     // obstacle.block(3,0,3,3) = {1,-1,1,1};
     A.obstacle = obstacle*100;
-    A.iterations = 1000;
+    A.iterations = 8000;
     A.width = 1000;
     A.height = 1000;
     Planner Ab(A);

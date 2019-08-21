@@ -38,6 +38,10 @@ struct Point{
    x = A.x;
    y = A.y;
   }
+
+  bool operator==(const Point& A){
+    return (x==A.x && y == A.y); 
+  }
 };
 
 typedef struct Planner_params
@@ -48,6 +52,7 @@ typedef struct Planner_params
     double iterations;
     int width;
     int height;
+    int goalProx = 20; 
 }planner_params;
 
 typedef struct node 
