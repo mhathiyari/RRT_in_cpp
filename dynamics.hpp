@@ -2,12 +2,13 @@
 #define dynamics_h
 
 // #include "planner.hpp"
-#include "point.hpp"
-#include<Eigen/Dense>
-#include<vector>
-#include<random>
+#include <Eigen/Dense>
+#include <vector>
+#include <random>
 #include <math.h>
 #include <limits>
+#include "point.hpp"
+
 using namespace std;
 using namespace Eigen;
 
@@ -53,4 +54,5 @@ Dynamics(){ };
 States new_state(States q_old, double input, double time);//
 friend class Planner;
 };
+
 #endif

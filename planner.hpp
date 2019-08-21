@@ -2,23 +2,21 @@
 #define planner_h
 
 #include "dynamics.hpp"
+
 //---------inlcude only for code evaluation---------//
 #include <ctime>
 #include <fstream>
+// Uncomment for visualization 
+#define VISUALIZATION 
+#ifdef VISUALIZATION
+#include "visualizer.hpp"
+#endif
 //--------------------------------------------------//
 
 using namespace std;
 using namespace Eigen;
 
-typedef struct Planner_params
-{
-    Point origin;
-    Point goal;
-    MatrixXd obstacle;
-    double iterations;
-    int width;
-    int height;
-}planner_params;
+
 
 // typedef struct node 
 // {
@@ -76,6 +74,8 @@ typedef struct node
 }Node;
 class Planner 
 {
+private:
+
     planner_params params;
     Node q_new;
     Node q_nearest;
@@ -89,7 +89,13 @@ class Planner
     vector<Node> nearby();
     vector<Node> goal_path();
     bool goal_prox(Node q_new);
-    public:
+    
+    #ifdef VISUALIZATION
+    Visualizer visualizer; 
+    #endif
+
+public:
+    
     vector<Node> path_goal; 
     Node steer();
     Planner(planner_params params);

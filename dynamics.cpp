@@ -1,4 +1,4 @@
-#include"dynamics.hpp"
+#include "dynamics.hpp"
 // #include "planner.hpp"
 States Dynamics::new_state(States q_old, double input, double time){
  //  RK4
