@@ -1,16 +1,11 @@
 #ifndef __VISUALIZER_H__
 #define __VISUALIZER_H__
 
-#include "planner.hpp"
+#include "common.hpp"
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/highgui/highgui.hpp"
+#include <cv.h>
+#include <highgui.h>
 
-inline void tfXy2Pixel(double& x, double& y, const int& width, const int& height)
-{
-  x += width/2; 
-  y = height/2 - y; 
-}
 
 typedef cv::Mat Image; 
 
@@ -22,12 +17,14 @@ private:
     int mFrame; 
     int rows; 
     int cols; 
+    int goalProx;
 
     string mName; 
 
     void drawObstacle(const Eigen::MatrixXd& obstacle);
     void drawNodes(const vector<Node>& node_list); 
-    void wire(const vector<Node>& node_list);
+    void drawGoal(const Node& goal); 
+    void wire(const vector<Node>& node_list, const cv::Scalar color);
     void show(); 
 
 public:
@@ -37,7 +34,8 @@ public:
     int getRows();
     int getCols(); 
 
-    void drawMap(const planner_params& A, const vector<Node>& nodeList);
+    void drawMap(const planner_params& A, const vector<Node>& nodeList, const Node& goal);
+    void drawMapwGoalPath(const planner_params& A, const vector<Node>& nodeList, const vector<Node>& goalPath);
 
 };
 

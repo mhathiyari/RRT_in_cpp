@@ -192,7 +192,7 @@ bool Planner::goal_prox(Node q_new){
 bool prox = false;
 double dist = euc_dist(q_new,q_goal);
 // cout<<dist<<endl;
-if (dist < 10)
+if (dist < params.goalProx)
     prox = true;
 return prox;
 }
@@ -248,12 +248,17 @@ vector<Node> Planner::RRTstar()
         }
         if(goal_prox(q_new)){
             path_goal = goal_path();
+
+            #ifdef VISUALIZATION
+            visualizer.drawMapwGoalPath(params, node_list, path_goal);
+            #endif
+
             cout<<"Number of iteration : "<<i<<endl;
             break;
             }
 
         #ifdef VISUALIZATION
-        visualizer.drawMap(params, node_list); 
+        visualizer.drawMap(params, node_list, q_goal); 
         #endif 
 
         cout << "step: " << i << endl; 
@@ -276,14 +281,15 @@ int main ()
     obstacle.row(3) << 1,-1,1,1;
 
     A.obstacle = obstacle*100;
-    A.iterations = 1000;
+    A.iterations = 8000;
     A.width = 1000;
     A.height = 1000;
+    A.goalProx = 50;
     Planner Ab(A);
     vector<Node>node_list = Ab.RRTstar();
     
     //---------inlcude only for code evaluation---------//
-
+    /*
     std::ofstream nodelist;
     nodelist.open ("nodelist.csv");
     nodelist<<"x"<<","<<"y"<<","<<"theta"<<",";
@@ -319,7 +325,7 @@ int main ()
         }
     }
     nodelist.close();
-
+    */
 
     cout<<"Time "<<(clock()-start_time)/CLOCKS_PER_SEC<<" s"<<endl;
     char n; 
