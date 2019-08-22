@@ -23,6 +23,21 @@ typename kdTree<T>::tVec kdTree<T>::findNearestPoint(const tVec& x)
 }
 
 template <class T> 
+typename kdTree<T>::tVec kdTree<T>::getParent(const tVec& x)
+{
+    std::shared_ptr<kdNode> p = getParentNode(node, x, 0);
+    if(p != nullptr)
+    {
+        return p->pos; 
+    }else
+    {
+        tVec n; 
+        return n;
+    }
+    
+}
+
+template <class T> 
 void kdTree<T>::printTree()
 {
     std::queue<std::shared_ptr<kdNode>> q; 
@@ -54,17 +69,29 @@ T kdTree<T>::calDisttVec(const tVec& a, const tVec& b)
 }
 
 template <class T> 
-void kdTree<T>::insert(const tVec& x, kdNodePtr& r, int level)
+bool kdTree<T>::insert(const tVec& x, kdNodePtr& r, int level)
 {
+    bool ind = false; 
     if(r == nullptr)
     {
         r = std::make_shared<kdNode>(x);
+        return true;
     }else if(x[level] < r->pos[level])
     {
-        insert(x, r->left,  (1+level)%dim); 
+        ind = insert(x, r->left,  (1+level)%dim); 
+        if(ind)
+        {
+            r->left->parent = r; 
+        }
+        return false;
     }else
     {
-        insert(x, r->right, (1+level)%dim); 
+        ind = insert(x, r->right, (1+level)%dim); 
+        if(ind)
+        {
+            r->right->parent = r;
+        }
+        return false; 
     }
 }
 
@@ -133,10 +160,31 @@ typename kdTree<T>::kdNodePtr kdTree<T>::findNearest(const kdNodePtr& branch,
     return bestNew; 
 } 
 
+template <class T>
+typename kdTree<T>::kdNodePtr kdTree<T>::getParentNode(const kdNodePtr& branch, 
+                                                       const tVec&      position, 
+                                                       const int&       level)
+{
+    if(branch == nullptr)
+    {
+        return branch; 
+    }
+    if(branch->pos[0] == position[0] && branch->pos[1] == position[1])
+    {
+        return branch->parent; 
+    }else if(position[level] < branch->pos[level])
+    {
+        return getParentNode(branch->left, position, (1+level)%dim);
+    }else
+    {
+        return getParentNode(branch->right, position, (1+level)%dim);
+    }
+}
+
 /*****************************************************************/
-/* Below is for testing kd tree 
+/* Below is for testing kd tree  */
 
-
+/*
 std::vector<std::vector<double>> list = {
                                         {27.88,-9.54},
                                         {-7.65,-5.16},
@@ -239,7 +287,20 @@ std::vector<std::vector<double>> list = {
                                         {-39.03,7.47},
                                         {-43.64,34.52}
                                         };
-
+*/
+/*
+std::vector<std::vector<double>> list = {{23.86,26.90},
+{8.60,8.14},
+{-25.33,42.83},
+{16.64,8.01},
+{-41.65,-48.30},
+{12.60,-37.91},
+{16.09,36.27},
+{22.98,-1.57},
+{39.08,34.49},
+{48.23,-29.06}};
+*/
+/*
 double di(std::vector<double> a, std::vector<double> b)
 {
     return sqrt(pow(a[0]-b[0],2) + pow(a[1]-b[1],2));
@@ -258,12 +319,12 @@ int main()
 
     std::vector<double> tmp = {20.0, 20.0}, tmp1, tmp2 = list[0];  
     
-    clock_t st = clock();
+    // clock_t st = clock();
     tmp1 = k.findNearestPoint(tmp);
-    std::cout << "Time of kd tree: " << clock()-st << std::endl;
+    // std::cout << "Time of kd tree: " << clock()-st << std::endl;
 
     double dmin = di(tmp, list[0]);
-    st = clock();
+    clock_t st1 = clock();
     for(auto i : list)
     {   
         if(dmin > di(tmp, i))
@@ -272,10 +333,21 @@ int main()
             tmp2 = i;
         }
     }
-    std::cout << "Time of looping through vector: " << clock()-st << std::endl;
+    // std::cout << "Time of looping through vector: " << clock()-st1 << std::endl;
 
     std::cout << "[" << tmp1[0] << "," << tmp1[1] << "]"<< std::endl;
     std::cout << "[" << tmp2[0] << "," << tmp2[1] << "]"<< std::endl;
+
+    tmp2 = k.getParent(list[0]);
+    if(!tmp2.empty())
+    {
+        std::cout << "------------------------------------" << std::endl;
+        std::cout << "[" << tmp2[0] << "," << tmp2[1] << "]"<< std::endl;
+    }else
+    {
+        std::cout << "node is the root of the tree!" <<std::endl;
+    }
+    
 
     return 0; 
 }

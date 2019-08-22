@@ -19,6 +19,7 @@ public:
         tVec                      pos; 
         std::shared_ptr<kdNode>   left; 
         std::shared_ptr<kdNode>   right; 
+        std::shared_ptr<kdNode>   parent; 
 
         kdNode(){};
         kdNode(const tVec& position)
@@ -29,7 +30,8 @@ public:
     kdTree(const tVec& position);
 
     void insert(const tVec& x);             
-    tVec findNearestPoint(const tVec& x);     
+    tVec findNearestPoint(const tVec& x); 
+    tVec getParent(const tVec& x);     
     void printTree();
 
 private:
@@ -40,11 +42,15 @@ private:
     int dim; // dimension
 
     T         calDisttVec(const tVec& a, const tVec& b);
-    void      insert(const tVec& x, kdNodePtr& r, int level); 
+    bool      insert(const tVec& x, kdNodePtr& r, int level); 
     tVec      findNearest(const tVec& x); 
     kdNodePtr findNearest(const kdNodePtr& branch,   // start node of the tree
                           const tVec&      position, // position we are querying
                           const int&       level,    // x or y
                           const kdNodePtr& best,     // store the best option so far
                           const T&    bestDist);     // store the min dist
+    kdNodePtr getParentNode(const kdNodePtr& branch, 
+                            const tVec&      position,
+                            const int&       level);
+    
 }; 
