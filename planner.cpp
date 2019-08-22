@@ -53,6 +53,23 @@ Node Planner::steer()
     q_new = q_possible;  
     return q_new;      
 }
+
+bool Planner::steerForRewire(const Node& q1, const Node& q2)
+{
+    float steering_max = 1.02, steering_inc = steering_max/21;
+    double x_eps = 0.3, y_eps = 0.3;
+    Dynamics A; 
+    for(float s = -steering_max; s <= steering_max; s += steering_inc)
+    {
+        States st = A.new_state(q1.state, s, 0.5); 
+        if(abs(st.x-q2.state.x) < x_eps && abs(st.y-q2.state.y) < y_eps)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 Node Planner::nearest_pt()
 {
     double new_cost,cost_near;
@@ -95,30 +112,31 @@ void Planner::revise_nearest(vector<Node> nearby_nodes){
         }
 }
 
-// void Planner::rewire(vector<Node> nearby_nodes){
-//     double temp_cost;
-//      for (auto i : nearby_nodes){
-//          if (i == q_nearest) continue ;
-//          temp_cost = (q_new.cost + euc_dist(q_new,i));
-//          if (i.cost > temp_cost){
-//             //  if collision_check(q_new,i,obstacle)
-//                  i.parent.x = q_new.x;
-//                  i.parent.y = q_new.y;
-//                  i.cost = temp_cost;
-//          }
-//      }
-// //  % Modifying the new nearby nodes in the actual node list
-//     for (auto i: nearby_nodes){
-//         if ((i.parent.x == q_new.x && i.parent.y == q_new.y)  && (i != q_nearest)){
-//             for (auto j : node_list){
-//                 if (j == i){ //%& collision_check(q_new.coord,near_nodes(i).coord,obstacle)
-//                     j.parent = i.parent;
-//                     i.cost = i.cost;
-//                 }
-//             }
-//         }
-//     }
-// }
+void Planner::rewire(vector<Node> nearby_nodes){
+    double temp_cost;
+     for (auto& i : nearby_nodes){
+         if (i == q_nearest) continue ;
+         temp_cost = (q_new.cost + euc_dist(q_new,i));
+         if (i.cost > temp_cost ){ //&& steerForRewire(i, q_new)){
+            std::cout << "dasd" << std::endl;
+            //  if collision_check(q_new,i,obstacle)
+            i.parent.x = q_new.state.x;
+            i.parent.y = q_new.state.y;
+            i.cost = temp_cost;
+         }
+     }
+//  % Modifying the new nearby nodes in the actual node list
+    for (auto i: nearby_nodes){
+        if ((i.parent.x == q_new.state.x && i.parent.y == q_new.state.y)  && (i != q_nearest)){
+            for (auto j : node_list){
+                if (j == i){ //%& collision_check(q_new.coord,near_nodes(i).coord,obstacle)
+                    j.parent = i.parent;
+                    j.cost = i.cost;
+                }
+            }
+        }
+    }
+}
 
 double euc_dist(Node q1, Node q2){
     return (q1.state.cost(q2.state));
@@ -240,11 +258,11 @@ vector<Node> Planner::RRTstar()
 
             // nearby_nodes = nearby();
 
-            //revise_nearest(nearby_nodes);
+            // revise_nearest(nearby_nodes);
 
             node_list.push_back(q_new);
 
-            //rewire(nearby_nodes);
+            // rewire(nearby_nodes);
         }
         if(goal_prox(q_new)){
             path_goal = goal_path();

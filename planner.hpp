@@ -61,6 +61,7 @@ private:
     vector<Node> node_list;
     Node random_point();
     Node nearest_pt();
+    bool steerForRewire(const Node& q1, const Node& q2);
     void rewire(vector<Node> nearby_nodes);
     void revise_nearest(vector<Node> nearby_nodes);
     vector<Node> nearby();
