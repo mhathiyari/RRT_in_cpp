@@ -118,9 +118,10 @@ void Visualizer::drawMap(const planner_params& A, const vector<Node>& nodeList, 
     mFrame++; 
     
     drawObstacle(A.obstacle); 
+    wire(nodeList, cv::Scalar(255,255,255)); 
     drawNodes(nodeList); 
     drawGoal(goal); 
-    wire(nodeList, cv::Scalar(255,255,255)); 
+    
 
     show(); 
     char key = cv::waitKey(1); 

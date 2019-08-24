@@ -54,7 +54,7 @@ Node Planner::steer()
     return q_new;      
 }
 
-bool Planner::steerForRewire(const Node& q1, const Node& q2)
+bool Planner::steerForRewire(const Node& q1, Node& q2)
 {
     float steering_max = 1.02, steering_inc = steering_max/21;
     double x_eps = 0.3, y_eps = 0.3;
@@ -64,6 +64,12 @@ bool Planner::steerForRewire(const Node& q1, const Node& q2)
         States st = A.new_state(q1.state, s, 0.5); 
         if(abs(st.x-q2.state.x) < x_eps && abs(st.y-q2.state.y) < y_eps)
         {
+            std::cout << "q1 vel: " << q1.state.vy << std::endl;   
+            std::cout << "q1: [" << q1.state.x << "," << q1.state.y << "], ";
+            std::cout << "q2: [" << q2.state.x << "," << q2.state.y << "], ";
+            std::cout << "st: [" << st.x << "," << st.y << "], " << std::endl;
+
+            q2.state = st;
             return true;
         }
     }
@@ -101,12 +107,13 @@ Node Planner::random_point()
     return q_new;
 }
 
-void Planner::revise_nearest(vector<Node> nearby_nodes){
+void Planner::revise_nearest(const vector<Node>& nearby_nodes){
     double new_cost;
     for (auto i : nearby_nodes){
         new_cost = i.cost + euc_dist(q_new,i);
-        if (new_cost < q_new.cost){
-            q_new.parent = i.parent;
+        if (new_cost < q_new.cost && steerForRewire(i, q_new)){
+            std::cout << "revise nearest" << std::endl;
+            q_new.parent = i.getcoord();
             q_new.cost = new_cost;
             }
         }
@@ -117,8 +124,8 @@ void Planner::rewire(vector<Node> nearby_nodes){
      for (auto& i : nearby_nodes){
          if (i == q_nearest) continue ;
          temp_cost = (q_new.cost + euc_dist(q_new,i));
-         if (i.cost > temp_cost ){ //&& steerForRewire(i, q_new)){
-            std::cout << "dasd" << std::endl;
+         if (i.cost > temp_cost && steerForRewire(q_new, i)){
+            std::cout << "rewire" << std::endl;
             //  if collision_check(q_new,i,obstacle)
             i.parent.x = q_new.state.x;
             i.parent.y = q_new.state.y;
@@ -128,7 +135,7 @@ void Planner::rewire(vector<Node> nearby_nodes){
 //  % Modifying the new nearby nodes in the actual node list
     for (auto i: nearby_nodes){
         if ((i.parent.x == q_new.state.x && i.parent.y == q_new.state.y)  && (i != q_nearest)){
-            for (auto j : node_list){
+            for (auto& j : node_list){
                 if (j == i){ //%& collision_check(q_new.coord,near_nodes(i).coord,obstacle)
                     j.parent = i.parent;
                     j.cost = i.cost;
@@ -146,7 +153,7 @@ vector<Node> Planner::nearby() {
 
     vector<Node> near_nodes;
     double dist;
-    int r = 500;
+    int r = 50;
     for (auto i : node_list ){
     // %      if nodes(i).coord == q_new.parent; continue;  
         dist = euc_dist(q_new,i);
@@ -256,15 +263,16 @@ vector<Node> Planner::RRTstar()
         {
             q_new.parent = q_nearest.getcoord();
 
-            // nearby_nodes = nearby();
+            nearby_nodes = nearby();
 
             // revise_nearest(nearby_nodes);
 
             node_list.push_back(q_new);
 
-            // rewire(nearby_nodes);
+            rewire(nearby_nodes);
         }
         if(goal_prox(q_new)){
+
             path_goal = goal_path();
 
             #ifdef VISUALIZATION
@@ -291,7 +299,7 @@ int main ()
     //Driver Code
     planner_params A;
     A.origin = Point(200,200);
-    A.goal = Point(-400,-400);
+    A.goal = Point(-150, -150);
     MatrixXd obstacle(4,4);
     obstacle.row(0) << 1,1,-1,1;
     obstacle.row(1) << -1,1,-1,-1;
@@ -302,7 +310,7 @@ int main ()
     A.iterations = 8000;
     A.width = 1000;
     A.height = 1000;
-    A.goalProx = 50;
+    A.goalProx = 30;
     Planner Ab(A);
     vector<Node>node_list = Ab.RRTstar();
     

@@ -8,6 +8,7 @@
 #include <queue> 
 #include <cmath>
 #include <ctime>
+#include <random>
 
 template <class T> 
 class kdTree

@@ -119,5 +119,10 @@ inline void tfXy2Pixel(double& x, double& y, const int& width, const int& height
   y = height/2 - y; 
 }
 
+inline double calDistNode(const Node& n1, const Node& n2)
+{
+  return sqrt(pow(n1.state.x-n2.state.x,2) + pow(n1.state.y-n2.state.y,2));
+}
+
 
 #endif 

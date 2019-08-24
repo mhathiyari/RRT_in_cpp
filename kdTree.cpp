@@ -300,16 +300,32 @@ std::vector<std::vector<double>> list = {{23.86,26.90},
 {39.08,34.49},
 {48.23,-29.06}};
 */
-/*
+
 double di(std::vector<double> a, std::vector<double> b)
 {
     return sqrt(pow(a[0]-b[0],2) + pow(a[1]-b[1],2));
 }
 
 
+std::default_random_engine generator(time(0));
+std::uniform_real_distribution<double> distribution(0,1);
+
+std::vector<std::vector<double>> list(1000,std::vector<double>(2)); 
+void helper()
+{
+    for(int i = 0; i < list.size(); i++)
+    {
+        list[i][0] = 100*distribution(generator)+(0-100/2);
+        list[i][1] = 100*distribution(generator)+(0-100/2);
+    }
+}
+
+
 int main()
 {
+    helper();
     kdTree<double> k(list[0]); 
+    // std::cout << list[0][0] << " " << list[0][1] << std::endl;
 
     for(int i = 1; i < list.size(); i++)
     {
@@ -319,9 +335,9 @@ int main()
 
     std::vector<double> tmp = {20.0, 20.0}, tmp1, tmp2 = list[0];  
     
-    // clock_t st = clock();
+    clock_t st = clock();
     tmp1 = k.findNearestPoint(tmp);
-    // std::cout << "Time of kd tree: " << clock()-st << std::endl;
+    std::cout << "Time of kd tree: " << clock()-st << std::endl;
 
     double dmin = di(tmp, list[0]);
     clock_t st1 = clock();
@@ -333,22 +349,11 @@ int main()
             tmp2 = i;
         }
     }
-    // std::cout << "Time of looping through vector: " << clock()-st1 << std::endl;
+    std::cout << "Time of looping through vector: " << clock()-st1 << std::endl;
 
     std::cout << "[" << tmp1[0] << "," << tmp1[1] << "]"<< std::endl;
     std::cout << "[" << tmp2[0] << "," << tmp2[1] << "]"<< std::endl;
 
-    tmp2 = k.getParent(list[0]);
-    if(!tmp2.empty())
-    {
-        std::cout << "------------------------------------" << std::endl;
-        std::cout << "[" << tmp2[0] << "," << tmp2[1] << "]"<< std::endl;
-    }else
-    {
-        std::cout << "node is the root of the tree!" <<std::endl;
-    }
-    
-
     return 0; 
 }
-*/
+/**/
