@@ -1,7 +1,7 @@
 #ifndef __VISUALIZER_H__
 #define __VISUALIZER_H__
 
-#include "common.hpp"
+#include "kdTreeNode.hpp"
 
 #include <cv.h>
 #include <highgui.h>
@@ -18,13 +18,14 @@ private:
     int rows; 
     int cols; 
     int goalProx;
+    Eigen::MatrixXd obstacle; 
 
     string mName; 
 
-    void drawObstacle(const Eigen::MatrixXd& obstacle);
-    void drawNodes(const vector<Node>& node_list); 
+    void drawObstacle();
+    void drawNodes(const kdNodePtr& root); 
     void drawGoal(const Node& goal); 
-    void wire(const vector<Node>& node_list, const cv::Scalar color);
+    void wire(const kdNodePtr& root, const cv::Scalar color);
     void show(); 
 
 public:
@@ -34,8 +35,8 @@ public:
     int getRows();
     int getCols(); 
 
-    void drawMap(const planner_params& A, const vector<Node>& nodeList, const Node& goal);
-    void drawMapwGoalPath(const planner_params& A, const vector<Node>& nodeList, const vector<Node>& goalPath);
+    void drawMap(const kdNodePtr& root, const Node& goal);
+    // void drawMapwGoalPath(const planner_params& A, const vector<Node>& nodeList, const vector<Node>& goalPath);
 
 };
 

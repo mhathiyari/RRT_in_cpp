@@ -17,6 +17,7 @@ void Visualizer::plannerParamsIn(const planner_params& A)
     cols     = A.width;  
     rows     = A.height;  
     goalProx = A.goalProx;
+    obstacle = A.obstacle; 
 }
 
 int Visualizer::getRows()
@@ -29,7 +30,7 @@ int Visualizer::getCols()
     return cols; 
 }
 
-void Visualizer::drawObstacle(const Eigen::MatrixXd& obstacle)
+void Visualizer::drawObstacle()
 {
     /*
     try{
@@ -61,18 +62,28 @@ void Visualizer::drawGoal(const Node& goal)
                CV_AA);
 }
 
-void Visualizer::drawNodes(const vector<Node>& nodeList)
+void Visualizer::drawNodes(const kdNodePtr& root)
 {
-    int len = nodeList.size(), size;
-    cv::Scalar color;  
-    for(int i = 0; i < len; i++)
+    int count = 0, size; 
+    cv::Scalar color;
+
+    std::queue<kdNodePtr> q;
+    q.push(root);
+
+    while(!q.empty())
     {
-        Node n = nodeList[i]; 
-        size = 1, color = cv::Scalar(0,0,255); 
-        if(i == 0)
+        kdNodePtr p = q.front();
+        Node n      = p->node;  
+        q.pop();
+
+        size = 1;
+        color = cv::Scalar(0,0,255); 
+        
+        if(count == 0)
         {
             size = 5, color = cv::Scalar(255,0,0); 
         }
+        count++;
 
         double x = n.state.x, y = n.state.y; 
         tfXy2Pixel(x, y, cols, rows); 
@@ -83,15 +94,33 @@ void Visualizer::drawNodes(const vector<Node>& nodeList)
                    color, 
                    -1, 
                    CV_AA);
+        
+        if(p->left)  q.push(p->left); 
+        if(p->right) q.push(p->right); 
     }
 }
 
-void Visualizer::wire(const vector<Node>& nodeList, const cv::Scalar color)
+void Visualizer::wire(const kdNodePtr& root, const cv::Scalar color)
 {
-    for(Node n : nodeList)
+    if(root == nullptr) return; 
+    std::queue<kdNodePtr> q; 
+    if(root->left)  q.push(root->left); 
+    if(root->right) q.push(root->right); 
+    while(!q.empty())
     {
-        Point p = n.parent; 
-        double x1 = n.state.x, y1 = n.state.y, x2 = p.x, y2 = p.y; 
+        kdNodePtr p = q.front(); 
+        q.pop();
+        Node n1 = p->node, n2;  
+        if(p->parent == nullptr)
+        {
+            std::cout << "Parent error" << std::endl;
+        }else
+        {
+            n2 = p->parent->node; 
+        }
+         
+
+        double x1 = n1.state.x, y1 = n1.state.y, x2 = n2.state.x, y2 = n2.state.y; 
         tfXy2Pixel(x1, y1, cols, rows); 
         tfXy2Pixel(x2, y2, cols, rows); 
 
@@ -100,7 +129,11 @@ void Visualizer::wire(const vector<Node>& nodeList, const cv::Scalar color)
                  cv::Point2d(x2,y2), 
                  color,
                  1,
-                 CV_AA); 
+                 CV_AA);
+        
+        if(p->left)  q.push(p->left); 
+        if(p->right) q.push(p->right);
+
     }
 }
 
@@ -108,8 +141,8 @@ void Visualizer::show()
 {
     cv::imshow(mName, map); 
 }
-
-void Visualizer::drawMap(const planner_params& A, const vector<Node>& nodeList, const Node& goal)
+/*
+void Visualizer::drawMap(const vector<Node>& nodeList, const Node& goal)
 {
     if(map.empty())
     {
@@ -126,7 +159,27 @@ void Visualizer::drawMap(const planner_params& A, const vector<Node>& nodeList, 
     show(); 
     char key = cv::waitKey(1); 
 }
+*/
 
+void Visualizer::drawMap(const kdNodePtr& root, const Node& goal)
+{
+    if(map.empty())
+    {
+        map = cv::Mat::zeros(cv::Size(cols, rows), CV_8UC3); 
+    }
+    mFrame++; 
+    
+    drawObstacle(); 
+    wire(root, cv::Scalar(255,255,255)); 
+    drawNodes(root); 
+    drawGoal(goal); 
+    
+
+    show(); 
+    char key = cv::waitKey(1); 
+}
+
+/*
 void Visualizer::drawMapwGoalPath(const planner_params& A, const vector<Node>& nodeList, const vector<Node>& goalPath)
 {
     if(map.empty())
@@ -145,3 +198,4 @@ void Visualizer::drawMapwGoalPath(const planner_params& A, const vector<Node>& n
     show(); 
     char key = cv::waitKey(100000);
 }
+*/

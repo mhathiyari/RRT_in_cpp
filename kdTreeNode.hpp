@@ -30,13 +30,15 @@ class kdTreeNode
 {
 public:
    
-    kdTreeNode(const Node& n); 
+    kdTreeNode(){}; 
 
+    void treeInit(const Node& n); 
     void printTree(); 
+    //void setParent(kdNodePtr& np, const kdNodePtr& p);
     kdNodePtr getRootPtr(); // should not do smth like this, only for debugging
-    // void setParent(kdNodePtr& np, const kdNodePtr& p);
     kdNodePtr insert(const Node& n);
-    Node findNearestPoint(const Node& n); 
+    kdNodePtr findNearestPtr(const Node& n); 
+    std::vector<kdNodePtr> nearby(const Node& n, const double& thres);
     // Node getParent(const Node& n);    
 
 private:
@@ -52,6 +54,11 @@ private:
                           const int level, // x or y
                           const kdNodePtr& best, // store the best option so far
                           const double& bestDist); // store the min dist
+    void nearby(const kdNodePtr& r,
+                const Node& n, 
+                const int level, 
+                const double& thres,
+                std::vector<kdNodePtr>& nearbyPtrVec);
     /*
     kdNodePtr getParentNode(const kdNodePtr& r,
                             const Node& n,

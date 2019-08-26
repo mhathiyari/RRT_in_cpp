@@ -1,6 +1,7 @@
 #include "kdTreeNode.hpp"
 
-kdTreeNode::kdTreeNode(const Node& n)
+
+void kdTreeNode::treeInit(const Node& n)
 {
     root = std::make_shared<kdNode>(n);
     dim  = 2; 
@@ -35,27 +36,36 @@ void kdTreeNode::printTree()
     std::cout << "total is: " << total << std::endl;
 }
 
-kdNodePtr kdTreeNode::getRootPtr()
-{
-    return root;
-}
-
 /*
-void kdTree::setParent(kdNodePtr& np, const kdNodePtr& p)
+void kdTreeNode::setParent(kdNodePtr& np, const kdNodePtr& p)
 {
     np->parent = p;
 }
 */
+
+kdNodePtr kdTreeNode::getRootPtr()
+{
+    return root; 
+}
+
 kdNodePtr kdTreeNode::insert(const Node& n)
 {
     return insert(n, root, 0); 
 }
 
-Node kdTreeNode::findNearestPoint(const Node& n)
+kdNodePtr kdTreeNode::findNearestPtr(const Node& n)
 {
     double dist = calDistNode(n, root->node); 
-    return findNearest(root, n, 0, root, dist)->node;
+    return findNearest(root, n, 0, root, dist);
 }
+
+std::vector<kdNodePtr> kdTreeNode::nearby(const Node& n, const double& thres)
+{
+    std::vector<kdNodePtr> nearbyPtrVec; 
+    nearby(root, n, 0, thres, nearbyPtrVec); 
+    return nearbyPtrVec;
+}
+
 /*
 Node kdTreeNode::getParent(const Node& n)
 {
@@ -91,7 +101,7 @@ kdNodePtr kdTreeNode::insert(const Node& n,
             return insert(n, r->right, (1+level)%dim);
         }
         
-    }else if(level == 1)
+    }else 
     {
         if(n.state.y < r->node.state.y)
         {
@@ -156,6 +166,39 @@ kdNodePtr kdTreeNode::findNearest(const kdNodePtr& r,
     
     return bestNew;
 }
+
+void kdTreeNode::nearby(const kdNodePtr& r,
+                        const Node& n, 
+                        const int level, 
+                        const double& thres,
+                        std::vector<kdNodePtr>& nearbyPtrVec)
+{
+    if(r == nullptr) return; 
+
+    double dist = calDistNode(r->node, n); 
+
+    if(dist < thres)
+    {
+        nearbyPtrVec.push_back(r);
+    }
+
+    kdNodePtr section = r->right, other = r->left; 
+    if((level == 0 && n.state.x < r->node.state.x) || (level == 1 && n.state.y < r->node.state.y))
+    {
+        section = r->left; 
+        other   = r->right; 
+    }
+    
+    nearby(section, n, (1+level)%dim, thres, nearbyPtrVec);
+
+    if((level == 0 && abs(n.state.x - r->node.state.x) <= thres) || (level == 1 && abs(n.state.y - r->node.state.y) <= thres))
+    {
+        nearby(other, n, (1+level)%dim, thres, nearbyPtrVec);
+    }
+
+    return;
+}
+
 /*
 kdNodePtr kdTreeNode::getParentNode(const kdNodePtr& r, 
                                     const Node& n, 
