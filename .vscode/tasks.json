@@ -8,14 +8,11 @@
             "label": "g++.exe build active file",
             "command": "g++",
             "args": [
-                "planner.cpp",
+                "plannertmp.cpp",
                 "dynamics.cpp",
-                "visualizer.cpp",
                 "-o",
                 "planner.exe",
-                "-IC:\\opencv\\build\\include",
-                "-LC:\\opencv\\build\\x64\\vc14\\lib",
-                "-lopencv_world411"
+
             ],
             "group": {
                 "kind": "build",

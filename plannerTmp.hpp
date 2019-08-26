@@ -30,13 +30,14 @@ private:
     Node q_origin; 
     double steering_max; 
     double steering_inc; 
+    double optimal_cost;
 
     Node random_point();
     bool steerForRewire(const kdNodePtr& p1, const kdNodePtr& p2); 
     void rewire(vector<kdNodePtr>& nearby_nodes);
     void revise_nearest(const vector<kdNodePtr>& nearby_nodes);
     bool goal_prox(); 
-
+    Node random_point(int k);
 
     #ifdef VISUALIZATION
     Visualizer visualizer; 
