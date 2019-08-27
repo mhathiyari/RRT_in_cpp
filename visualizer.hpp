@@ -1,5 +1,5 @@
 #ifndef __VISUALIZER_H__
-// #define __VISUALIZER_H__
+#define __VISUALIZER_H__
 
 #include "kdTreeNode.hpp"
 
@@ -26,6 +26,7 @@ private:
     void drawNodes(const kdNodePtr& root); 
     void drawGoal(const Node& goal); 
     void wire(const kdNodePtr& root, const cv::Scalar color);
+    void wireGoalPath(const kdNodePtr& goalPtr);
     void show(); 
 
 public:
@@ -36,7 +37,7 @@ public:
     int getCols(); 
 
     void drawMap(const kdNodePtr& root, const Node& goal);
-    // void drawMapwGoalPath(const planner_params& A, const vector<Node>& nodeList, const vector<Node>& goalPath);
+    void drawMapwGoalPath(const kdNodePtr& root, const kdNodePtr& goalPtr);
 
 };
 

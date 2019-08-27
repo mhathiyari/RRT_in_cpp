@@ -4,7 +4,7 @@
 #include "dynamics.hpp"
 
 // Uncomment for visualization 
-// #define VISUALIZATION
+#define VISUALIZATION
 #ifdef VISUALIZATION
 #include "visualizer.hpp"
 #endif
@@ -24,6 +24,7 @@ private:
     
     kdNodePtr qNewPtr; 
     kdNodePtr qNearestPtr;
+    kdNodePtr qGoalPtr;
 
     Node q_new;
     Node q_goal;  
@@ -31,13 +32,14 @@ private:
     double steering_max; 
     double steering_inc; 
     double optimal_cost;
+    double maximum_cost; 
 
     Node random_point();
+    Node random_point(int k);
     bool steerForRewire(const kdNodePtr& p1, const kdNodePtr& p2); 
     void rewire(vector<kdNodePtr>& nearby_nodes);
     void revise_nearest(const vector<kdNodePtr>& nearby_nodes);
     bool goal_prox(); 
-    Node random_point(int k);
 
     #ifdef VISUALIZATION
     Visualizer visualizer; 

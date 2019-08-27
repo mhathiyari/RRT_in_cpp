@@ -137,6 +137,29 @@ void Visualizer::wire(const kdNodePtr& root, const cv::Scalar color)
     }
 }
 
+void Visualizer::wireGoalPath(const kdNodePtr& goalPtr)
+{
+    kdNodePtr p = goalPtr; 
+    Node n1, n2; 
+    while(p && p->parent)
+    {
+        n1 = p->node;
+        n2 = p->parent->node; 
+        double x1 = n1.state.x, y1 = n1.state.y, x2 = n2.state.x, y2 = n2.state.y; 
+        tfXy2Pixel(x1, y1, cols, rows); 
+        tfXy2Pixel(x2, y2, cols, rows); 
+
+        cv::line(map, 
+                 cv::Point2d(x1,y1), 
+                 cv::Point2d(x2,y2), 
+                 cv::Scalar(255,0,0),
+                 1,
+                 CV_AA);
+
+        p = p->parent;
+    }
+}
+
 void Visualizer::show()
 {
     cv::imshow(mName, map); 
@@ -179,23 +202,21 @@ void Visualizer::drawMap(const kdNodePtr& root, const Node& goal)
     char key = cv::waitKey(1); 
 }
 
-/*
-void Visualizer::drawMapwGoalPath(const planner_params& A, const vector<Node>& nodeList, const vector<Node>& goalPath)
+
+void Visualizer::drawMapwGoalPath(const kdNodePtr& root, const kdNodePtr& goalPtr)
 {
     if(map.empty())
     {
         map = cv::Mat::zeros(cv::Size(cols, rows), CV_8UC3); 
     }
     mFrame++; 
-    Node goal = goalPath.back(); 
-    
-    drawObstacle(A.obstacle); 
-    drawNodes(nodeList); 
-    drawGoal(goal); 
-    wire(nodeList, cv::Scalar(255,255,255));
-    wire(goalPath, cv::Scalar(255,  0,  0));  
 
+    drawObstacle(); 
+    wire(root, cv::Scalar(255,255,255));
+    wireGoalPath(goalPtr); 
+    drawNodes(root); 
+    drawGoal(goalPtr->node);
+    
     show(); 
     char key = cv::waitKey(100000);
 }
-*/

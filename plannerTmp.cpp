@@ -28,6 +28,7 @@ Planner::Planner(const planner_params& params_in)
     q_goal.parent.y = Infinity; 
 
     optimal_cost = q_origin.state.cost(q_goal.state);
+    maximum_cost = optimal_cost + 400; // avoiding devided by 0
 
     tree.treeInit(q_origin);  
 
@@ -56,7 +57,7 @@ void Planner::steer()
             dist = new_cost; 
             q_possible = q_f; 
             q_possible.input = s; 
-            q_possible.cost  = new_cost; 
+            q_possible.cost  = qNearestPtr->node.cost + euc_dist(q_f, qNearestPtr->node); 
         } 
     }
     q_new = q_possible; 
@@ -79,6 +80,9 @@ void Planner::RRTstar()
         steer();
         if(euc_dist(q_new, qNearestPtr->node) < 1000 && collision_check(q_new, qNearestPtr->node, params.obstacle))
         {
+
+            maximum_cost = max(maximum_cost, q_new.cost + euc_dist(q_new, q_goal)); 
+
             qNewPtr = tree.insert(q_new);
             qNewPtr->parent = qNearestPtr; 
             nearby_nodes = tree.nearby(q_new, 50.0);
@@ -87,7 +91,9 @@ void Planner::RRTstar()
             if(goal_prox())
             {
                 #ifdef VISUALIZATION
-                // visualizer.drawMapwGoalPath() // TODO
+                qGoalPtr = tree.insert(q_goal); 
+                qGoalPtr->parent = qNewPtr;
+                visualizer.drawMapwGoalPath(tree.getRootPtr(), qGoalPtr); 
                 #endif
                 
                 cout << "Number of iteration: " << i << endl;
@@ -95,7 +101,7 @@ void Planner::RRTstar()
             }
         }
         #ifdef VISUALIZATION
-        visualizer.drawMap(tree.getRootPtr(), q_goal); // TODO
+        visualizer.drawMap(tree.getRootPtr(), q_goal); 
         #endif
 
         cout << i << endl;
@@ -130,28 +136,32 @@ Node Planner::random_point()
 
 Node Planner::random_point(int k) //k nearest planner
 {
-    Node q_new;
     while(1){
-    q_new.state.random_state(distribution(generator));
-    q_new.state.x  = params.width*distribution(generator)+(0-params.width/2);
-    q_new.state.y  = params.height*distribution(generator)+(0-params.height/2);
-    q_new.input    = 0;
-    q_new.cost     = 0;
-    q_new.parent.x = q_origin.state.x;
-    q_new.parent.y = q_origin.state.y;
+        q_new.state.random_state(distribution(generator));
+        q_new.state.x  = params.width*distribution(generator)+(0-params.width/2);
+        q_new.state.y  = params.height*distribution(generator)+(0-params.height/2);
+        q_new.input    = 0;
+        q_new.cost     = 0;
+        q_new.parent.x = q_origin.state.x;
+        q_new.parent.y = q_origin.state.y;
 
-    qNearestPtr = tree.findNearestPtr(q_new);
-    q_new.cost += euc_dist(q_new, qNearestPtr->node);  
+        qNearestPtr = tree.findNearestPtr(q_new);
+        q_new.cost  = euc_dist(q_new, qNearestPtr->node) + qNearestPtr->node.cost;  
 
 
-    double mquality = 1 - ((q_new.cost - optimal_cost)/(10*optimal_cost-optimal_cost));
-    mquality = min(mquality,0.8);
-    float r = distribution(generator);
-    if (r<mquality)
-        return q_new; 
+        double mquality = 1 - ((q_new.cost + euc_dist(q_new, q_goal) - optimal_cost)/(maximum_cost-optimal_cost));
+
+        mquality = min(mquality,0.4);
+        double r = distribution(generator);
+
+        
+
+        if (r < mquality)
+        {
+            q_new.cost = 0;
+            return q_new;
+        }
     }
-
-
 }
 
 bool Planner::steerForRewire(const kdNodePtr& p1, const kdNodePtr& p2)
@@ -222,7 +232,7 @@ int main()
     A.iterations = 8000;
     A.width = 1000;
     A.height = 1000;
-    A.goalProx = 0.01;
+    A.goalProx = 20;
 
     Planner p(A);
     
