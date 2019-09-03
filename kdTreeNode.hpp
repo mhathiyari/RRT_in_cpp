@@ -20,7 +20,7 @@ struct kdNode
     std::shared_ptr<kdNode> right; 
     std::shared_ptr<kdNode> parent; 
 
-    kdNode(){}; 
+    kdNode(){}; //look into whether its needed 
     kdNode(const Node& n)
     :node(n), left(nullptr), right(nullptr), parent(nullptr){}; 
 };
@@ -35,7 +35,7 @@ public:
     void treeInit(const Node& n); 
     void printTree(); 
     //void setParent(kdNodePtr& np, const kdNodePtr& p);
-    kdNodePtr getRootPtr(); // should not do smth like this, only for debugging
+    kdNodePtr getRootPtr(); // should not do smth like this, only for debugging used only by visualizer
     kdNodePtr insert(const Node& n);
     kdNodePtr findNearestPtr(const Node& n); 
     std::vector<kdNodePtr> nearby(const Node& n, const double& thres);
