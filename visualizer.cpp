@@ -14,8 +14,8 @@ Visualizer::Visualizer()
 
 void Visualizer::plannerParamsIn(const planner_params& A)
 {    
-    cols     = A.width;  
-    rows     = A.height;  
+    cols     = A.width*5;  
+    rows     = A.height*5; 
     goalProx = A.goalProx;
     obstacle = A.obstacle; 
 }
@@ -39,14 +39,26 @@ void Visualizer::drawObstacle()
         std::cout << "Mat Initialization Failed." << std::endl; 
     }
     */
-    // top left corner 
-    int width  = calDist(obstacle(0,0), obstacle(0,1), obstacle(0,2), obstacle(0,3)); 
-    int height = calDist(obstacle(1,0), obstacle(1,1), obstacle(1,2), obstacle(1,3)); 
-    cv::rectangle(map, 
-                  cv::Rect((int)obstacle(1,0) + cols/2,
-                           rows/2 - (int)obstacle(1,1),
-                           width,
-                           height),cv::Scalar(0,100,0), -1); 
+    for (int i = 0; i<obstacle.rows(); i++){
+        double x1 = obstacle(i,0), y1 = obstacle(i,1), x2 = obstacle(i,2), y2 = obstacle(i,3); 
+        tfXy2Pixel(x1, y1, cols, rows); 
+        tfXy2Pixel(x2, y2, cols, rows); 
+
+        cv::line(map, 
+                 cv::Point2d(x1,y1), 
+                 cv::Point2d(x2,y2), 
+                 cv::Scalar(0,100,0),
+                 3,
+                 CV_AA);
+    }
+    // // top left corner 
+    // int width  = calDist(obstacle(0,0), obstacle(0,1), obstacle(0,2), obstacle(0,3)); 
+    // int height = calDist(obstacle(1,0), obstacle(1,1), obstacle(1,2), obstacle(1,3)); 
+    // cv::rectangle(map, 
+    //               cv::Rect((int)obstacle(1,0) + cols/2,
+    //                        rows/2 - (int)obstacle(1,1),
+    //                        width,
+    //                        height),cv::Scalar(0,100,0), -1); 
 }
 
 void Visualizer::drawGoal(const Node& goal)

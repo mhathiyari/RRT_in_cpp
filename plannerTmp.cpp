@@ -72,7 +72,7 @@ void Planner::RRTstar()
 
         // qNewPtr     = tree.insert(random_point()); 
 
-        q_new = random_point(1);
+        q_new = random_point(0);//pass zero to turn off goal bias
 
         qNearestPtr = tree.findNearestPtr(q_new);
         q_new.cost += euc_dist(q_new, qNearestPtr->node);  
@@ -135,8 +135,10 @@ Node Planner::random_point()
 }
 
 Node Planner::random_point(int k) //k nearest planner
-{
-    while(1){
+{   
+    if (k == 0){
+        Node q_new;
+
         q_new.state.random_state(distribution(generator));
         q_new.state.x  = params.width*distribution(generator)+(0-params.width/2);
         q_new.state.y  = params.height*distribution(generator)+(0-params.height/2);
@@ -145,21 +147,33 @@ Node Planner::random_point(int k) //k nearest planner
         q_new.parent.x = q_origin.state.x;
         q_new.parent.y = q_origin.state.y;
 
-        qNearestPtr = tree.findNearestPtr(q_new);
-        q_new.cost  = euc_dist(q_new, qNearestPtr->node) + qNearestPtr->node.cost;  
+        return q_new; 
+    }else{
+        while(1){
+            q_new.state.random_state(distribution(generator));
+            q_new.state.x  = params.width*distribution(generator)+(0-params.width/2);
+            q_new.state.y  = params.height*distribution(generator)+(0-params.height/2);
+            q_new.input    = 0;
+            q_new.cost     = 0;
+            q_new.parent.x = q_origin.state.x;
+            q_new.parent.y = q_origin.state.y;
+
+            qNearestPtr = tree.findNearestPtr(q_new);
+            q_new.cost  = euc_dist(q_new, qNearestPtr->node) + qNearestPtr->node.cost;  
 
 
-        double mquality = 1 - ((q_new.cost + euc_dist(q_new, q_goal) - optimal_cost)/(maximum_cost-optimal_cost));
+            double mquality = 1 - ((q_new.cost + euc_dist(q_new, q_goal) - optimal_cost)/(maximum_cost-optimal_cost));
 
-        mquality = min(mquality,0.4);
-        double r = distribution(generator);
+            mquality = min(mquality,0.4);
+            double r = distribution(generator);
 
-        
+            
 
-        if (r < mquality)
-        {
-            q_new.cost = 0;
-            return q_new;
+            if (r < mquality)
+            {
+                q_new.cost = 0;
+                return q_new;
+            }
         }
     }
 }
@@ -220,19 +234,32 @@ bool Planner::goal_prox()
 int main()
 {
     planner_params A;
-    A.origin = Point(200,200);
-    A.goal = Point(-150, -150);
-    MatrixXd obstacle(4,4);
-    obstacle.row(0) << 1,1,-1,1;
-    obstacle.row(1) << -1,1,-1,-1;
-    obstacle.row(2) << -1,-1,1,-1;
-    obstacle.row(3) << 1,-1,1,1;
+    A.origin = Point(90,0);
+    A.goal = Point(-90, 90);
+    MatrixXd obstacle(5,4);
+    
+    // Simple Rectangle obstacle
+    // obstacle.row(0) << 1,1,-1,1;
+    // obstacle.row(1) << -1,1,-1,-1;
+    // obstacle.row(2) << -1,-1,1,-1;
+    // obstacle.row(3) << 1,-1,1,1;
+    // A.obstacle = 100*obstacle;
 
-    A.obstacle = obstacle*100;
+    // Maze Map
+    obstacle.row(0) << 50,0,50,150;
+    obstacle.row(1) << 150,200,150,100;
+    obstacle.row(2) << 150,100,100,100;
+    obstacle.row(3) << 125,0,125,50;
+    obstacle.row(4) << 200,75,150,75;
+    A.obstacle = obstacle-(100*MatrixXd::Ones(5,4));
+    cout<< A.obstacle<< endl;
+    A.obstacle.col(0) = -1*A.obstacle.col(0);
+    A.obstacle.col(2) = -1*A.obstacle.col(2);
+
     A.iterations = 8000;
-    A.width = 1000;
-    A.height = 1000;
-    A.goalProx = 20;
+    A.width = 200; 
+    A.height = 200;
+    A.goalProx = 5;
 
     Planner p(A);
     

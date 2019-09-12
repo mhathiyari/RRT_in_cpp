@@ -1,12 +1,15 @@
 #ifndef __VISUALIZER_H__
 #define __VISUALIZER_H__
-
+#define MUSTAFA
 #include "kdTreeNode.hpp"
+#ifdef MUSTAFA
+    #include <opencv2/opencv.hpp>
+    #include <opencv2/highgui/highgui.hpp>
+#else
+    #include <cv.h>
+    #include <highgui.h>
 
-#include <cv.h>
-#include <highgui.h>
-
-
+#endif
 typedef cv::Mat Image; 
 
 class Visualizer
