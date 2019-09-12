@@ -41,7 +41,7 @@ struct Point{
    x = A.x;
    y = A.y;
   }
-};
+};// Inculde z maybe
 
 typedef struct Planner_params
 {
@@ -57,7 +57,7 @@ typedef struct Planner_params
 typedef struct states
 {
     double x; 
-    double y;
+    double y; //someday change this to point 
     double theta;
     double vy;
     double theta_dot;
@@ -74,7 +74,7 @@ typedef struct states
       vy = A.vy;
       theta_dot = A.theta_dot;
     }
-    void setcoord(Point& A){
+    void setcoord(Point& A){ // camelcase all func names
       x = A.x;
       y = A.y;
       theta = 0;
@@ -89,14 +89,14 @@ typedef struct states
     double cost(const states& q2){
       return (sqrt(pow((x-q2.x),2)+pow((y-q2.y),2)));
     }
-}States;
+}States; // decide later on typdef bussiness 
 
 typedef struct node 
 {
     States state;
     double input;
     double cost;
-    Point parent;
+    Point parent; // look into whether this is needed with kd tree 
 
     Point getcoord(){
         Point A(this->state.x,this->state.y);
@@ -115,7 +115,7 @@ typedef struct node
       parent = A.parent;
     }
     void setcoord(Point& A){
-      this->state.setcoord(A);
+      this->state.setcoord(A); // check if i can remove this->
     }
 }Node;
 
@@ -123,7 +123,7 @@ inline void tfXy2Pixel(double& x, double& y, const int& width, const int& height
 {
   x += width/2; 
   y = height/2 - y; 
-}
+} //why is inline needed on this 
 
 inline double calDistNode(const Node& n1, const Node& n2)
 {

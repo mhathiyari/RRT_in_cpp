@@ -1,14 +1,14 @@
 #include "kdTreeNode.hpp"
 
 
-void kdTreeNode::treeInit(const Node& n)
+void kdTreeNode::treeInit(const Node& n)// add dim
 {
     root = std::make_shared<kdNode>(n);
     dim  = 2; 
     if(!root)
     {
         std::cout << "CONSTRUCTOR ERROR" << std::endl;
-    }
+    } // remove maybe
 }
 
 void kdTreeNode::printTree()

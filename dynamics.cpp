@@ -1,8 +1,9 @@
 #include "dynamics.hpp"
 // #include "planner.hpp"
+// variables comment
 States Dynamics::new_state(States q_old, double input, double time){
  //  RK4
-    double dt = 0.01;
+    double dt = 0.01; // add check min dt or time
     Matrix<double,5,1> state,k1,k2,k3,k4;
     state(0,0) = q_old.x;
     state(1,0) = q_old.y;
@@ -25,7 +26,7 @@ States Dynamics::new_state(States q_old, double input, double time){
 
     q_old.x = state(0,0);
     q_old.y = state(1,0);
-    q_old.theta =theta;
+    q_old.theta = theta;
     q_old.vy = state(3,0);
     q_old.theta_dot =  state(4,0);
     return q_old;
@@ -34,7 +35,7 @@ States Dynamics::new_state(States q_old, double input, double time){
 Matrix<double,5,1> Dynamics::dynamics(Matrix<double,5,1> state ,double u)
 {
 double mass = 760; // TODO make a seprate place to define constants and see what are better ways to declare
-double lf = 1.025;
+double lf = 1.025; // make it static
 double lr = 0.787;
 double inertia = 1490.3;
 double cf = 5146/2;

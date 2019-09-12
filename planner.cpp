@@ -37,8 +37,7 @@ Node Planner::steer()
     float steering_inc = steering_max/21;
     double dist = numeric_limits<double>::infinity();
     double new_cost;
-    for(float s = -steering_max ; s <= steering_max ;s += steering_inc)
-    {
+    for(float s = -steering_max ; s <= steering_max ;s += steering_inc){
         if (abs(s)<steering_inc)
             s = 0;
         q_f.state = A.new_state(q_nearest.state,s,0.5);     
@@ -255,7 +254,7 @@ vector<Node> Planner::RRTstar()
         q_nearest = nearest_pt();
         
         // cout<<"N "<<q_nearest.x<<" "<<q_nearest.y<<endl;
-        q_new = steer();
+        q_new =  ();
         // cout<<"S "<<q_new.x<<" "<<q_new.y<<endl;
 
     

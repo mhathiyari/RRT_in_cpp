@@ -29,13 +29,13 @@ private:
     Node q_new;
     Node q_goal;  
     Node q_origin; 
-    double steering_max; 
+    double steering_max; //static or some better way to declare
     double steering_inc; 
     double optimal_cost;
     double maximum_cost; 
 
-    Node random_point();
-    Node random_point(int k);
+    Node random_point();                                            // without goal bais
+    Node random_point(int k);                                       // with Gb
     bool steerForRewire(const kdNodePtr& p1, const kdNodePtr& p2); 
     void rewire(vector<kdNodePtr>& nearby_nodes);
     void revise_nearest(const vector<kdNodePtr>& nearby_nodes);

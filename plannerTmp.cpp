@@ -18,17 +18,17 @@ Planner::Planner(const planner_params& params_in)
     q_origin.setcoord(params.origin);
     q_origin.input = 0; 
     q_origin.cost  = 0; 
-    q_origin.parent.x = params.origin.x; 
+    q_origin.parent.x = params.origin.x;//seet if parent gets used remove 
     q_origin.parent.y = params.origin.y; 
 
     q_goal.setcoord(params.goal); 
     q_goal.input = 0; 
     q_goal.cost  = 0; 
-    q_goal.parent.x = Infinity;
+    q_goal.parent.x = Infinity;// set to something meaningful or remove
     q_goal.parent.y = Infinity; 
 
     optimal_cost = q_origin.state.cost(q_goal.state);
-    maximum_cost = optimal_cost + 400; // avoiding devided by 0
+    maximum_cost = optimal_cost + 400; // avoiding devided by 0 10*opt +1
 
     tree.treeInit(q_origin);  
 
@@ -47,7 +47,7 @@ void Planner::steer()
     for(double s = -steering_max; s <= steering_max; s += steering_inc)
     {
         if(abs(s) < steering_inc)
-        {
+       {
             s = 0; 
         }
         q_f.state = dynamic.new_state(qNearestPtr->node.state, s, 0.5); 
@@ -78,7 +78,7 @@ void Planner::RRTstar()
         q_new.cost += euc_dist(q_new, qNearestPtr->node);  
 
         steer();
-        if(euc_dist(q_new, qNearestPtr->node) < 1000 && collision_check(q_new, qNearestPtr->node, params.obstacle))
+        if(euc_dist(q_new, qNearestPtr->node) < 1000 && collision_check(q_new, qNearestPtr->node, params.obstacle)) //should think of an alternative  1000 dist compare
         {
 
             maximum_cost = max(maximum_cost, q_new.cost + euc_dist(q_new, q_goal)); 
@@ -144,7 +144,7 @@ Node Planner::random_point(int k) //k nearest planner
         q_new.state.y  = params.height*distribution(generator)+(0-params.height/2);
         q_new.input    = 0;
         q_new.cost     = 0;
-        q_new.parent.x = q_origin.state.x;
+        q_new.parent.x = q_origin.state.x; // remove maybe
         q_new.parent.y = q_origin.state.y;
 
         return q_new; 
@@ -180,7 +180,7 @@ Node Planner::random_point(int k) //k nearest planner
 
 bool Planner::steerForRewire(const kdNodePtr& p1, const kdNodePtr& p2)
 {
-    double x_eps = 0.3, y_eps = 0.3; 
+    double x_eps = 0.3, y_eps = 0.3; // static make ratio of the arear of the map
     for(double s = -steering_max; s <= steering_inc; s += steering_inc)
     {
         States st = dynamic.new_state(p1->node.state, s, 0.5); 
@@ -237,7 +237,7 @@ int main()
     A.origin = Point(90,0);
     A.goal = Point(-90, 90);
     MatrixXd obstacle(5,4);
-    
+
     // Simple Rectangle obstacle
     // obstacle.row(0) << 1,1,-1,1;
     // obstacle.row(1) << -1,1,-1,-1;
