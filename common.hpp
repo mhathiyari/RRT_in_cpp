@@ -77,7 +77,7 @@ typedef struct states
     void setcoord(Point& A){ // camelcase all func names
       x = A.x;
       y = A.y;
-      theta = 0;
+      theta = M_PI;
       vy = 0;
       theta_dot = 0;
     }
@@ -147,7 +147,7 @@ inline bool onsegment(Point p, Point q, Point r) {
     return false; 
 } 
   
-inline bool collision_check(Node qa, Node qb, Eigen::MatrixXd obstacle){
+inline bool collision_check(Node qa, Node qb, Eigen::MatrixXd& obstacle){
     int o1,o2,o3,o4;
     bool safe = true;
     for (int i=0;i<obstacle.rows();i++){
@@ -176,4 +176,32 @@ inline bool collision_check(Node qa, Node qb, Eigen::MatrixXd obstacle){
     return safe;
 } 
 
+inline bool collisionCheckPoint(Point q, Point p, Eigen::MatrixXd& obstacle){
+    int o1,o2,o3,o4;
+    bool safe = true;
+    for (int i=0;i<obstacle.rows();i++){
+        Point p1(obstacle(i,0),obstacle(i,1));
+        Point q1(obstacle(i,2),obstacle(i,3));
+
+        o1 = orientation(p, q, p1);
+        o2 = orientation(p, q, q1);
+        o3 = orientation(p1, q1, p);     
+        o4 = orientation(p1, q1, q);
+
+        if (o1 != o2 && o3 != o4)
+            return !safe ;
+        if (o1 == 0 && onsegment(p, p1, q))
+            return !safe ;
+
+        if (o2 == 0 && onsegment(p, q1, q))
+            return !safe ;
+
+        if (o3 == 0 && onsegment(p1, p, q1))
+            return !safe ;
+
+        if (o4 == 0 && onsegment(p1, q, q1))
+            return !safe ;
+    }
+    return safe;
+} 
 #endif 

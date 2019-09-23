@@ -14,8 +14,8 @@ Visualizer::Visualizer()
 
 void Visualizer::plannerParamsIn(const planner_params& A)
 {    
-    cols     = A.width*5;  
-    rows     = A.height*5; 
+    cols     = A.width;  
+    rows     = A.height; 
     goalProx = A.goalProx;
     obstacle = A.obstacle; 
 }
@@ -172,6 +172,38 @@ void Visualizer::wireGoalPath(const kdNodePtr& goalPtr)
     }
 }
 
+int wireDubins(double q[3], double x, void* user_data)
+{   
+
+}
+
+void Visualizer::wireGoalDubin(const kdNodePtr& goalPtr)
+{
+    kdNodePtr p = goalPtr; 
+    while(p && p->parent){
+        std::vector<std::vector<double>> samplePoints; 
+        dubins_path_sample_many(&p->path, 5, wireDubins, samplePoints); 
+
+        for(int i = 0; i < samplePoints.size(); i++)
+        {
+            double x = samplePoints[i][0], y = samplePoints[i][1]; 
+            tfXy2Pixel(x, y, cols, rows); 
+            cv::circle(map, 
+                       cv::Point2d(x, y), 
+                       2, 
+                       cv::Scalar(255,255,255), 
+                       -1, 
+                       CV_AA);
+        }
+
+        double x = p->node.state.x, y = p->node.state.y;
+        tfXy2Pixel(x, y, cols, rows); 
+        cv::circle(map, cv::Point2d(x, y), 2, cv::Scalar(0,0,255), -1, CV_AA); 
+
+        p = p->parent;
+    }
+}
+
 void Visualizer::show()
 {
     cv::imshow(mName, map); 
@@ -231,4 +263,18 @@ void Visualizer::drawMapwGoalPath(const kdNodePtr& root, const kdNodePtr& goalPt
     
     show(); 
     char key = cv::waitKey(100000);
+}
+
+void Visualizer::drawDubinsCurve(const kdNodePtr& root, const kdNodePtr& goalPtr)
+{
+    
+    map = cv::Mat::zeros(cv::Size(cols, rows), CV_8UC3); 
+    
+    mFrame++; 
+
+    drawObstacle(); 
+    wireGoalDubin(goalPtr); 
+    drawGoal(goalPtr->node); 
+    show(); 
+    cv::waitKey(100000);
 }

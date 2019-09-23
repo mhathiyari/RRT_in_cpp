@@ -36,13 +36,6 @@ void kdTreeNode::printTree()
     std::cout << "total is: " << total << std::endl;
 }
 
-/*
-void kdTreeNode::setParent(kdNodePtr& np, const kdNodePtr& p)
-{
-    np->parent = p;
-}
-*/
-
 kdNodePtr kdTreeNode::getRootPtr()
 {
     return root; 
@@ -66,21 +59,6 @@ std::vector<kdNodePtr> kdTreeNode::nearby(const Node& n, const double& thres)
     return nearbyPtrVec;
 }
 
-/*
-Node kdTreeNode::getParent(const Node& n)
-{
-    kdNodePtr p = getParentNode(root, n, 0);
-    if(p != nullptr)
-    {
-        return p->node; 
-    }else
-    {
-        Node nParent;
-        return nParent;
-    }
-        
-}
-*/
 /***************************************************/
 
 kdNodePtr kdTreeNode::insert(const Node& n,

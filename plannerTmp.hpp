@@ -2,6 +2,7 @@
 
 #include "kdTreeNode.hpp"
 #include "dynamics.hpp"
+#include "dubins.h"
 
 // Uncomment for visualization 
 #define VISUALIZATION
@@ -9,6 +10,13 @@
 #include "visualizer.hpp"
 #endif
 //
+
+// Uncomment for Dubins Curve
+#define DUBINSCURVE
+
+#ifndef DUBINSCURVE
+#define DYNAMICS
+#endif
 
 using namespace std; 
 using namespace Eigen; 
@@ -33,13 +41,19 @@ private:
     double steering_inc; 
     double optimal_cost;
     double maximum_cost; 
+    double maxDist; 
+
+    static double distCoeff; 
 
     Node random_point();                                            // without goal bais
     Node random_point(int k);                                       // with Gb
     bool steerForRewire(const kdNodePtr& p1, const kdNodePtr& p2); 
+    bool dubinForRewire(const kdNodePtr& p1, const kdNodePtr& p2, DubinsPath* path); 
+    bool collisionCheckDubins(DubinsPath* path); 
     void rewire(vector<kdNodePtr>& nearby_nodes);
     void revise_nearest(const vector<kdNodePtr>& nearby_nodes);
     bool goal_prox(); 
+    bool goalProxDubins();
 
     #ifdef VISUALIZATION
     Visualizer visualizer; 
@@ -52,6 +66,7 @@ public:
     void steer(); 
     void RRTstar(); 
     void print(); 
+    int dubinsCurve(DubinsPath* path); 
     // friend bool collision_check(Node qa, Node qb, MatrixXd obstacle); 
 
 };
