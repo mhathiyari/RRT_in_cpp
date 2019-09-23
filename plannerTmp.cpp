@@ -126,7 +126,12 @@ void Planner::RRTstar()
             nearby_nodes = tree.nearby(q_new, 50.0);
             Rewire(nearby_nodes); 
 
+            
+            #ifdef DUBINSCURVE
+            if(goalProxDubins())
+            #elif defined(DYNAMICS)
             if(goal_prox())
+            #endif
             {
                 #ifdef VISUALIZATION
                 qGoalPtr = tree.insert(q_goal); 
@@ -182,13 +187,10 @@ Node Planner::RandomPoint()
 Node Planner::RandomPoint(int k) //k nearest planner
 {       
     if (k == 0){
-        #ifdef DUBINSCURVE
         double tmp = maxDist + distCoeff;
         
         q_new.state.x  = params.width*distribution(generator)+(0-params.width/2);
         q_new.state.y  = params.height*distribution(generator)+(0-params.height/2);
-        #endif
-
         q_new.state.RandomState(distribution(generator));
         q_new.input    = 0;
         q_new.cost     = 0;
@@ -260,7 +262,7 @@ bool Planner::collisionCheckDubins(DubinsPath* path){
         Point p(qInit[0], qInit[1]); 
         dubins_path_sample(path, x, qInit); 
         Point q(qInit[0], qInit[1]);         
-        if (!CollisionCheckPoint(p, q, params.obstacle)){
+        if (abs(q.x) > params.width/2 || abs(q.y) > params.height/2 || !collisionCheckPoint(p, q, params.obstacle)){
             return !safe; 
         };
     }
@@ -326,7 +328,9 @@ bool Planner::goalProxDubins(){
     for(;x <= len; x += len/8){
         dubins_path_sample(&path, x, q); 
         dist = sqrt(pow(q_goal.state.x - q[0], 2) + pow(q_goal.state.y-q[1],2)); 
-        if(dist < params.goalProx) return GOAL;
+        if(dist < params.goalProx){ 
+            return GOAL;
+        }
     }
     return !GOAL;
 }
@@ -360,7 +364,7 @@ int main()
     A.iterations = 8000;
     A.width      = 1000; 
     A.height     = 1000;
-    A.goalProx   = 30;
+    A.goalProx   = 15;
 
     Planner p(A);
     

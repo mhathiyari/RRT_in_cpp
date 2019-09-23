@@ -230,10 +230,7 @@ void Visualizer::drawMap(const vector<Node>& nodeList, const Node& goal)
 
 void Visualizer::drawMap(const kdNodePtr& root, const Node& goal)
 {
-    if(map.empty())
-    {
-        map = cv::Mat::zeros(cv::Size(cols, rows), CV_8UC3); 
-    }
+    map = cv::Mat::zeros(cv::Size(cols, rows), CV_8UC3); 
     mFrame++; 
     
     drawObstacle(); 
@@ -249,10 +246,8 @@ void Visualizer::drawMap(const kdNodePtr& root, const Node& goal)
 
 void Visualizer::drawMapwGoalPath(const kdNodePtr& root, const kdNodePtr& goalPtr)
 {
-    if(map.empty())
-    {
-        map = cv::Mat::zeros(cv::Size(cols, rows), CV_8UC3); 
-    }
+    map = cv::Mat::zeros(cv::Size(cols, rows), CV_8UC3); 
+
     mFrame++; 
 
     drawObstacle(); 
