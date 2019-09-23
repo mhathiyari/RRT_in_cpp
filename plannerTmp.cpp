@@ -12,7 +12,7 @@ double Planner::distCoeff = 300.0;
 
 double euc_dist(Node& q1, Node& q2)
 {
-    return q1.state.cost(q2.state);
+    return q1.state.Cost(q2.state);
 }
 
 Planner::Planner(const planner_params& params_in)
@@ -21,19 +21,19 @@ Planner::Planner(const planner_params& params_in)
     steering_max = 1.02; 
     steering_inc = steering_max/21;
 
-    q_origin.setcoord(params.origin);
+    q_origin.SetCoord(params.origin);
     q_origin.input = 0; 
     q_origin.cost  = 0; 
     q_origin.parent.x = params.origin.x;//seet if parent gets used remove 
     q_origin.parent.y = params.origin.y; 
 
-    q_goal.setcoord(params.goal); 
+    q_goal.SetCoord(params.goal); 
     q_goal.input = 0; 
     q_goal.cost  = 0; 
     q_goal.parent.x = Infinity;// set to something meaningful or remove
     q_goal.parent.y = Infinity; 
 
-    optimal_cost = q_origin.state.cost(q_goal.state);
+    optimal_cost = q_origin.state.Cost(q_goal.state);
     maximum_cost = optimal_cost + 400; // avoiding devided by 0 10*opt +1
     maxDist      = 0; 
     tree.treeInit(q_origin);  
@@ -88,7 +88,7 @@ void Planner::RRTstar()
     vector<kdNodePtr> nearby_nodes; 
     for(int i = 0; i < params.iterations; i++)
     {  
-        q_new = random_point(0);//pass zero to turn off goal bias
+        q_new = RandomPoint(0);//pass zero to turn off goal bias
 
         qNearestPtr =  tree.findNearestPtr(q_new);
         q_new.cost  += euc_dist(q_new, qNearestPtr->node);  
@@ -108,7 +108,7 @@ void Planner::RRTstar()
         #ifdef DYNAMICS
         steer();
 
-        if(distNewNear < 1000 && collision_check(q_new, qNearestPtr->node, params.obstacle))
+        if(distNewNear < 1000 && CollisionCheck(q_new, qNearestPtr->node, params.obstacle))
         #endif        
 
         {
@@ -124,7 +124,7 @@ void Planner::RRTstar()
             #endif
 
             nearby_nodes = tree.nearby(q_new, 50.0);
-            rewire(nearby_nodes); 
+            Rewire(nearby_nodes); 
 
             if(goal_prox())
             {
@@ -164,11 +164,11 @@ void Planner::print()
 * private
 */
 
-Node Planner::random_point()
+Node Planner::RandomPoint()
 {
     Node q_new;
 
-    q_new.state.random_state(distribution(generator));
+    q_new.state.RandomState(distribution(generator));
     q_new.state.x  = params.width*distribution(generator)+(0-params.width/2);
     q_new.state.y  = params.height*distribution(generator)+(0-params.height/2);
     q_new.input    = 0;
@@ -179,7 +179,7 @@ Node Planner::random_point()
     return q_new; 
 }
 
-Node Planner::random_point(int k) //k nearest planner
+Node Planner::RandomPoint(int k) //k nearest planner
 {       
     if (k == 0){
         #ifdef DUBINSCURVE
@@ -189,7 +189,7 @@ Node Planner::random_point(int k) //k nearest planner
         q_new.state.y  = params.height*distribution(generator)+(0-params.height/2);
         #endif
 
-        q_new.state.random_state(distribution(generator));
+        q_new.state.RandomState(distribution(generator));
         q_new.input    = 0;
         q_new.cost     = 0;
         q_new.parent.x = q_origin.state.x; // remove maybe
@@ -198,7 +198,7 @@ Node Planner::random_point(int k) //k nearest planner
         return q_new; 
     }else{
         while(1){
-            q_new.state.random_state(distribution(generator));
+            q_new.state.RandomState(distribution(generator));
             q_new.state.x  = params.width*distribution(generator)+(0-params.width/2);
             q_new.state.y  = params.height*distribution(generator)+(0-params.height/2);
             q_new.input    = 0;
@@ -223,7 +223,7 @@ Node Planner::random_point(int k) //k nearest planner
     }
 }
 
-bool Planner::steerForRewire(const kdNodePtr& p1, const kdNodePtr& p2)
+bool Planner::SteerForRewire(const kdNodePtr& p1, const kdNodePtr& p2)
 {
     double x_eps = 0.3, y_eps = 0.3; // static make ratio of the arear of the map
     for(double s = -steering_max; s <= steering_inc; s += steering_inc)
@@ -260,7 +260,7 @@ bool Planner::collisionCheckDubins(DubinsPath* path){
         Point p(qInit[0], qInit[1]); 
         dubins_path_sample(path, x, qInit); 
         Point q(qInit[0], qInit[1]);         
-        if (!collisionCheckPoint(p, q, params.obstacle)){
+        if (!CollisionCheckPoint(p, q, params.obstacle)){
             return !safe; 
         };
     }
@@ -268,7 +268,7 @@ bool Planner::collisionCheckDubins(DubinsPath* path){
 }
 
 
-void Planner::rewire(vector<kdNodePtr>& nearby_nodes)
+void Planner::Rewire(vector<kdNodePtr>& nearby_nodes)
 {
     double temp_cost; 
     for(auto& q : nearby_nodes)
@@ -285,7 +285,7 @@ void Planner::rewire(vector<kdNodePtr>& nearby_nodes)
 
         #elif defined(DYNAMICS)
         temp_cost = qNewPtr->node.cost + euc_dist(qNewPtr->node, q->node); 
-        if(q->node.cost > temp_cost && steerForRewire(qNewPtr, q))
+        if(q->node.cost > temp_cost && SteerForRewire(qNewPtr, q))
         {
         #endif
 
@@ -296,13 +296,13 @@ void Planner::rewire(vector<kdNodePtr>& nearby_nodes)
     }
 }
 
-void Planner::revise_nearest(const vector<kdNodePtr>& nearby_nodes)
+void Planner::ReviseNearest(const vector<kdNodePtr>& nearby_nodes)
 {
     double new_cost; 
     for(auto i : nearby_nodes)
     {
         new_cost = i->node.cost + euc_dist(qNewPtr->node, i->node); 
-        if(new_cost < qNewPtr->node.cost && steerForRewire(i, qNewPtr))
+        if(new_cost < qNewPtr->node.cost && SteerForRewire(i, qNewPtr))
         {
             cout <<  "revise nearest" << endl; 
             qNewPtr->parent    = i;

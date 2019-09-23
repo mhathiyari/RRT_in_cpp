@@ -29,7 +29,7 @@ using namespace Eigen;
 //     double input;
 //     double cost;
 //     Point parent;
-//     Point getcoord(){
+//     Point GetCoord(){
 //         Point A(this->x,this->y);
 //         return A;
 //     }
@@ -59,11 +59,11 @@ private:
     Node q_goal;
     Node q_origin;
     vector<Node> node_list;
-    Node random_point();
-    Node nearest_pt();
-    bool steerForRewire(const Node& q1, Node& q2);
-    void rewire(vector<Node> nearby_nodes);
-    void revise_nearest(const vector<Node>& nearby_nodes);
+    Node RandomPoint();
+    Node NearestPoint();
+    bool SteerForRewire(const Node& q1, Node& q2);
+    void Rewire(vector<Node> nearby_nodes);
+    void ReviseNearest(const vector<Node>& nearby_nodes);
     vector<Node> nearby();
     vector<Node> goal_path();
     bool goal_prox(Node q_new);
@@ -78,7 +78,7 @@ public:
     Node steer();
     Planner(planner_params params);
     vector<Node> RRTstar();
-    friend bool collision_check(Node qa,Node qb);
+    friend bool CollisionCheck(Node qa,Node qb);
     // virtual Node new_state(Node q_old, double input, double time){};
 
 };
@@ -86,9 +86,9 @@ public:
 default_random_engine generator(time(0));
 uniform_real_distribution<double> distribution(0,1);
 
-int orientation(Point p,Point q,Point r);
-bool onsegment(Point p, Point q, Point r) ;
-bool collision_check(Node qa,Node qb,MatrixXd obstacle);
+int Orientation(Point p,Point q,Point r);
+bool OnSegment(Point p, Point q, Point r) ;
+bool CollisionCheck(Node qa,Node qb,MatrixXd obstacle);
 // struct Planner_params
 // {
 //     Point origin;
@@ -111,7 +111,7 @@ bool collision_check(Node qa,Node qb,MatrixXd obstacle);
 //     Node q_new;
 //     Node q_nearest;
 //     vector<Node> node_list;
-//     State random_point(void);
+//     State RandomPoint(void);
 
 //     public:
 //     planner(Planner_params params);

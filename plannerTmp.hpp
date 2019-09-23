@@ -45,13 +45,13 @@ private:
 
     static double distCoeff; 
 
-    Node random_point();                                            // without goal bais
-    Node random_point(int k);                                       // with Gb
-    bool steerForRewire(const kdNodePtr& p1, const kdNodePtr& p2); 
+    Node RandomPoint();                                            // without goal bais
+    Node RandomPoint(int k);                                       // with Gb
+    bool SteerForRewire(const kdNodePtr& p1, const kdNodePtr& p2); 
     bool dubinForRewire(const kdNodePtr& p1, const kdNodePtr& p2, DubinsPath* path); 
     bool collisionCheckDubins(DubinsPath* path); 
-    void rewire(vector<kdNodePtr>& nearby_nodes);
-    void revise_nearest(const vector<kdNodePtr>& nearby_nodes);
+    void Rewire(vector<kdNodePtr>& nearby_nodes);
+    void ReviseNearest(const vector<kdNodePtr>& nearby_nodes);
     bool goal_prox(); 
     bool goalProxDubins();
 
@@ -67,7 +67,7 @@ public:
     void RRTstar(); 
     void print(); 
     int dubinsCurve(DubinsPath* path); 
-    // friend bool collision_check(Node qa, Node qb, MatrixXd obstacle); 
+    // friend bool CollisionCheck(Node qa, Node qb, MatrixXd obstacle); 
 
 };
 

@@ -74,19 +74,19 @@ typedef struct states
       vy = A.vy;
       theta_dot = A.theta_dot;
     }
-    void setcoord(Point& A){ // camelcase all func names
+    void SetCoord(Point& A){ // camelcase all func names
       x = A.x;
       y = A.y;
       theta = M_PI;
       vy = 0;
       theta_dot = 0;
     }
-    void random_state(const double& Random){
+    void RandomState(const double& Random){
         theta =  2*M_PI*Random;
         vy = 0;
         theta_dot = 0;
     }
-    double cost(const states& q2){
+    double Cost(const states& q2){
       return (sqrt(pow((x-q2.x),2)+pow((y-q2.y),2)));
     }
 }States; // decide later on typdef bussiness 
@@ -98,7 +98,7 @@ typedef struct node
     double cost;
     Point parent; // look into whether this is needed with kd tree 
 
-    Point getcoord(){
+    Point GetCoord(){
         Point A(this->state.x,this->state.y);
         return A;
     }
@@ -114,8 +114,8 @@ typedef struct node
       cost = A.cost;
       parent = A.parent;
     }
-    void setcoord(Point& A){
-      this->state.setcoord(A); // check if i can remove this->
+    void SetCoord(Point& A){
+      this->state.SetCoord(A); // check if i can remove this->
     }
 }Node;
 
@@ -130,7 +130,7 @@ inline double calDistNode(const Node& n1, const Node& n2)
   return sqrt(pow(n1.state.x-n2.state.x,2) + pow(n1.state.y-n2.state.y,2));
 }
 
-inline int orientation(Point p,Point q,Point r){
+inline int Orientation(Point p,Point q,Point r){
 
     float val = (q.y - p.y) * (r.x - q.x) - 
             (q.x - p.x) * (r.y - q.y); 
@@ -140,66 +140,66 @@ inline int orientation(Point p,Point q,Point r){
     return (val > 0)? 1: 2;
 }
 
-inline bool onsegment(Point p, Point q, Point r) { 
+inline bool OnSegment(Point p, Point q, Point r) { 
     if (q.x <= max(p.x, r.x) && q.x >= min(p.x, r.x) && 
         q.y <= max(p.y, r.y) && q.y >= min(p.y, r.y)) 
        return true; 
     return false; 
 } 
   
-inline bool collision_check(Node qa, Node qb, Eigen::MatrixXd& obstacle){
+inline bool CollisionCheck(Node qa, Node qb, Eigen::MatrixXd& obstacle){
     int o1,o2,o3,o4;
     bool safe = true;
     for (int i=0;i<obstacle.rows();i++){
         Point p1(obstacle(i,0),obstacle(i,1));
         Point q1(obstacle(i,2),obstacle(i,3));
 
-        o1 = orientation(qb.getcoord(),qa.getcoord(),p1);
-        o2 = orientation(qb.getcoord(),qa.getcoord(),q1);
-        o3 = orientation(p1,q1,qb.getcoord());     
-        o4 = orientation(p1,q1,qa.getcoord());
+        o1 = Orientation(qb.GetCoord(),qa.GetCoord(),p1);
+        o2 = Orientation(qb.GetCoord(),qa.GetCoord(),q1);
+        o3 = Orientation(p1,q1,qb.GetCoord());     
+        o4 = Orientation(p1,q1,qa.GetCoord());
 
         if (o1 != o2 && o3 != o4)
             return !safe ;
-        if (o1 == 0 && onsegment(qb.getcoord(),p1,qa.getcoord()))
+        if (o1 == 0 && OnSegment(qb.GetCoord(),p1,qa.GetCoord()))
             return !safe ;
 
-        if (o2 == 0 && onsegment(qb.getcoord(),q1,qa.getcoord()))
+        if (o2 == 0 && OnSegment(qb.GetCoord(),q1,qa.GetCoord()))
             return !safe ;
 
-        if (o3 == 0 && onsegment(p1,qb.getcoord(),q1))
+        if (o3 == 0 && OnSegment(p1,qb.GetCoord(),q1))
             return !safe ;
 
-        if (o4 == 0 && onsegment(p1,qa.getcoord(),q1))
+        if (o4 == 0 && OnSegment(p1,qa.GetCoord(),q1))
             return !safe ;
     }
     return safe;
 } 
 
-inline bool collisionCheckPoint(Point q, Point p, Eigen::MatrixXd& obstacle){
+inline bool CollisionCheckPoint(Point q, Point p, Eigen::MatrixXd& obstacle){
     int o1,o2,o3,o4;
     bool safe = true;
     for (int i=0;i<obstacle.rows();i++){
         Point p1(obstacle(i,0),obstacle(i,1));
         Point q1(obstacle(i,2),obstacle(i,3));
 
-        o1 = orientation(p, q, p1);
-        o2 = orientation(p, q, q1);
-        o3 = orientation(p1, q1, p);     
-        o4 = orientation(p1, q1, q);
+        o1 = Orientation(p, q, p1);
+        o2 = Orientation(p, q, q1);
+        o3 = Orientation(p1, q1, p);     
+        o4 = Orientation(p1, q1, q);
 
         if (o1 != o2 && o3 != o4)
             return !safe ;
-        if (o1 == 0 && onsegment(p, p1, q))
+        if (o1 == 0 && OnSegment(p, p1, q))
             return !safe ;
 
-        if (o2 == 0 && onsegment(p, q1, q))
+        if (o2 == 0 && OnSegment(p, q1, q))
             return !safe ;
 
-        if (o3 == 0 && onsegment(p1, p, q1))
+        if (o3 == 0 && OnSegment(p1, p, q1))
             return !safe ;
 
-        if (o4 == 0 && onsegment(p1, q, q1))
+        if (o4 == 0 && OnSegment(p1, q, q1))
             return !safe ;
     }
     return safe;

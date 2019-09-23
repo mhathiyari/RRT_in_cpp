@@ -195,12 +195,12 @@ kdNodePtr kdTreeNode::getParentNode(const kdNodePtr& r,
 std::default_random_engine generator(time(0));
 std::uniform_real_distribution<double> distribution(0,1);
 
-Node random_point()
+Node RandomPoint()
 {   
     Node q_new; 
     q_new.state.x = 100*distribution(generator)+(0-100/2);
     q_new.state.y = 100*distribution(generator)+(0-100/2);
-    q_new.state.random_state(distribution(generator));
+    q_new.state.RandomState(distribution(generator));
     q_new.input = 0;
     q_new.cost = 0;
     return q_new;
@@ -209,7 +209,7 @@ Node random_point()
 int main()
 {
     Node q_origin; 
-    q_origin.state.x = 25.0, q_origin.state.y = 23.6, q_origin.state.random_state(0.2);
+    q_origin.state.x = 25.0, q_origin.state.y = 23.6, q_origin.state.RandomState(0.2);
     q_origin.input = 0, q_origin.cost = 0; 
 
     kdTreeNode tree(q_origin);
@@ -217,7 +217,7 @@ int main()
 
     for(int i = 0; i < 8000; i++)
     {
-        Node q = random_point();
+        Node q = RandomPoint();
         // std::cout << "[" << q.state.x << "," << q.state.y << "]" << std::endl;
         p2 = tree.insert(q);
         // p2->parent = p1; 
@@ -227,7 +227,7 @@ int main()
         // std::cout << std::endl;
     }
 
-    Node tmp = random_point();
+    Node tmp = RandomPoint();
     queue<kdNodePtr> q; 
     q.push(tree.getRootPtr()); 
     kdNodePtr a = q.front();
