@@ -52,8 +52,8 @@ private:
     bool collisionCheckDubins(DubinsPath* path); 
     void Rewire(vector<kdNodePtr>& nearby_nodes);
     void ReviseNearest(const vector<kdNodePtr>& nearby_nodes);
-    bool goal_prox(); 
-    bool goalProxDubins();
+    bool GoalProx(); 
+    bool GoalProxDubins();
 
     #ifdef VISUALIZATION
     Visualizer visualizer; 
@@ -63,10 +63,10 @@ public:
 
     Planner(const planner_params& params_in); 
     
-    void steer(); 
+    void Steer(); 
     void RRTstar(); 
     void print(); 
-    int dubinsCurve(DubinsPath* path); 
+    int DubinsCurve(DubinsPath* path); 
     // friend bool CollisionCheck(Node qa, Node qb, MatrixXd obstacle); 
 
 };

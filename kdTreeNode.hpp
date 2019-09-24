@@ -39,7 +39,7 @@ public:
     kdNodePtr getRootPtr(); // should not do smth like this, only for debugging used only by visualizer
     kdNodePtr insert(const Node& n);
     kdNodePtr findNearestPtr(const Node& n); 
-    std::vector<kdNodePtr> nearby(const Node& n, const double& thres);
+    std::vector<kdNodePtr> Nearby(const Node& n, const double& thres);
 
 private:
     
@@ -52,7 +52,7 @@ private:
                           const int level, // x or y
                           const kdNodePtr& best, // store the best option so far
                           const double& bestDist); // store the min dist
-    void nearby(const kdNodePtr& r,
+    void Nearby(const kdNodePtr& r,
                 const Node& n, 
                 const int level, 
                 const double& thres,

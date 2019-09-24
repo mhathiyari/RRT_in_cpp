@@ -52,10 +52,10 @@ kdNodePtr kdTreeNode::findNearestPtr(const Node& n)
     return findNearest(root, n, 0, root, dist);
 }
 
-std::vector<kdNodePtr> kdTreeNode::nearby(const Node& n, const double& thres)
+std::vector<kdNodePtr> kdTreeNode::Nearby(const Node& n, const double& thres)
 {
     std::vector<kdNodePtr> nearbyPtrVec; 
-    nearby(root, n, 0, thres, nearbyPtrVec); 
+    Nearby(root, n, 0, thres, nearbyPtrVec); 
     return nearbyPtrVec;
 }
 
@@ -145,7 +145,7 @@ kdNodePtr kdTreeNode::findNearest(const kdNodePtr& r,
     return bestNew;
 }
 
-void kdTreeNode::nearby(const kdNodePtr& r,
+void kdTreeNode::Nearby(const kdNodePtr& r,
                         const Node& n, 
                         const int level, 
                         const double& thres,
@@ -167,11 +167,11 @@ void kdTreeNode::nearby(const kdNodePtr& r,
         other   = r->right; 
     }
     
-    nearby(section, n, (1+level)%dim, thres, nearbyPtrVec);
+    Nearby(section, n, (1+level)%dim, thres, nearbyPtrVec);
 
     if((level == 0 && abs(n.state.x - r->node.state.x) <= thres) || (level == 1 && abs(n.state.y - r->node.state.y) <= thres))
     {
-        nearby(other, n, (1+level)%dim, thres, nearbyPtrVec);
+        Nearby(other, n, (1+level)%dim, thres, nearbyPtrVec);
     }
 
     return;

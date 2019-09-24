@@ -3,7 +3,7 @@
 using namespace std;
 using namespace Eigen;
 
-double euc_dist(Node q1, Node q2);
+double EucDist(Node q1, Node q2);
 
 Planner::Planner(planner_params params_in)
 { 
@@ -27,7 +27,7 @@ Planner::Planner(planner_params params_in)
 }
 
 
-Node Planner::steer()
+Node Planner::Steer()
 {
 
     Node q_f,q_possible;
@@ -41,7 +41,7 @@ Node Planner::steer()
         if (abs(s)<steering_inc)
             s = 0;
         q_f.state = A.new_state(q_nearest.state,s,0.5);     
-        new_cost = euc_dist(q_f ,q_new);
+        new_cost = EucDist(q_f ,q_new);
         if(new_cost < dist){
             dist = new_cost;
             q_possible = q_f;
@@ -78,12 +78,12 @@ bool Planner::SteerForRewire(const Node& q1, Node& q2)
 Node Planner::NearestPoint()
 {
     double new_cost,cost_near;
-    q_new.cost = euc_dist(q_new ,node_list[0]);
+    q_new.cost = EucDist(q_new ,node_list[0]);
     q_nearest = node_list[0];
     cost_near = node_list[0].cost; // for cost of the node you are connecting to 
 
     for(auto i : node_list){
-     new_cost = euc_dist(q_new ,i);
+     new_cost = EucDist(q_new ,i);
 
      if(new_cost < q_new.cost){
          q_new.cost = new_cost;
@@ -109,7 +109,7 @@ Node Planner::RandomPoint()
 void Planner::ReviseNearest(const vector<Node>& nearby_nodes){
     double new_cost;
     for (auto i : nearby_nodes){
-        new_cost = i.cost + euc_dist(q_new,i);
+        new_cost = i.cost + EucDist(q_new,i);
         if (new_cost < q_new.cost && SteerForRewire(i, q_new)){
             std::cout << "revise nearest" << std::endl;
             q_new.parent = i.GetCoord();
@@ -122,7 +122,7 @@ void Planner::Rewire(vector<Node> nearby_nodes){
     double temp_cost;
      for (auto& i : nearby_nodes){
          if (i == q_nearest) continue ;
-         temp_cost = (q_new.cost + euc_dist(q_new,i));
+         temp_cost = (q_new.cost + EucDist(q_new,i));
          if (i.cost > temp_cost && SteerForRewire(q_new, i)){
             std::cout << "rewire" << std::endl;
             //  if CollisionCheck(q_new,i,obstacle)
@@ -144,18 +144,18 @@ void Planner::Rewire(vector<Node> nearby_nodes){
     }
 }
 
-double euc_dist(Node q1, Node q2){
+double EucDist(Node q1, Node q2){
     return (q1.state.Cost(q2.state));
 }
 
-vector<Node> Planner::nearby() {
+vector<Node> Planner::Nearby() {
 
     vector<Node> near_nodes;
     double dist;
     int r = 50;
     for (auto i : node_list ){
     // %      if nodes(i).coord == q_new.parent; continue;  
-        dist = euc_dist(q_new,i);
+        dist = EucDist(q_new,i);
         if (dist < r )//&& CollisionCheck(q_new.coord,nodes(i).coord,obstacle)
             {near_nodes.push_back(i);}
     }
@@ -212,9 +212,9 @@ bool CollisionCheck(Node qa,Node qb,MatrixXd obstacle){
     return safe;
 }    
   
-bool Planner::goal_prox(Node q_new){
+bool Planner::GoalProx(Node q_new){
 bool prox = false;
-double dist = euc_dist(q_new,q_goal);
+double dist = EucDist(q_new,q_goal);
 // cout<<dist<<endl;
 if (dist < params.goalProx)
     prox = true;
@@ -223,7 +223,7 @@ return prox;
 
 
 // need to implement a better way to search the shortest path using a very naive approach right now
-vector<Node> Planner::goal_path(){
+vector<Node> Planner::GoalPath(){
     auto size_n = node_list.size();
     q_goal.parent = node_list[size_n-1].GetCoord();
     vector<Node> path;
@@ -258,11 +258,11 @@ vector<Node> Planner::RRTstar()
         // cout<<"S "<<q_new.x<<" "<<q_new.y<<endl;
 
     
-        if (euc_dist(q_new,q_nearest) < 1000 && CollisionCheck(q_new,q_nearest,params.obstacle)) 
+        if (EucDist(q_new,q_nearest) < 1000 && CollisionCheck(q_new,q_nearest,params.obstacle)) 
         {
             q_new.parent = q_nearest.GetCoord();
 
-            nearby_nodes = nearby();
+            nearby_nodes = Nearby();
 
             // ReviseNearest(nearby_nodes);
 
@@ -270,9 +270,9 @@ vector<Node> Planner::RRTstar()
 
             Rewire(nearby_nodes);
         }
-        if(goal_prox(q_new)){
+        if(GoalProx(q_new)){
 
-            path_goal = goal_path();
+            path_goal = GoalPath();
 
             #ifdef VISUALIZATION
             visualizer.drawMapwGoalPath(params, node_list, path_goal);

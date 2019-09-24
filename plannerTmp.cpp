@@ -10,7 +10,7 @@ double Planner::distCoeff = 300.0;
 * public
 */
 
-double euc_dist(Node& q1, Node& q2)
+double EucDist(Node& q1, Node& q2)
 {
     return q1.state.Cost(q2.state);
 }
@@ -43,7 +43,7 @@ Planner::Planner(const planner_params& params_in)
     #endif
 }
 
-void Planner::steer()
+void Planner::Steer()
 {
     Node q_f, q_possible; 
     double best_angle   = 0; 
@@ -57,19 +57,19 @@ void Planner::steer()
             s = 0; 
         }
         q_f.state = dynamic.new_state(qNearestPtr->node.state, s, 0.5); 
-        new_cost  = euc_dist(q_f, q_new);
+        new_cost  = EucDist(q_f, q_new);
         if(new_cost < dist)
         {
             dist       = new_cost; 
             q_possible = q_f; 
             q_possible.input = s; 
-            q_possible.cost  = qNearestPtr->node.cost + euc_dist(q_f, qNearestPtr->node); 
+            q_possible.cost  = qNearestPtr->node.cost + EucDist(q_f, qNearestPtr->node); 
         } 
     }
     q_new = q_possible; 
 }
 
-int Planner::dubinsCurve(DubinsPath* path)
+int Planner::DubinsCurve(DubinsPath* path)
 {
     Node q_nearest = qNearestPtr->node ; 
 
@@ -91,29 +91,29 @@ void Planner::RRTstar()
         q_new = RandomPoint(0);//pass zero to turn off goal bias
 
         qNearestPtr =  tree.findNearestPtr(q_new);
-        q_new.cost  += euc_dist(q_new, qNearestPtr->node);  
-        double distNewNear = euc_dist(q_new, qNearestPtr->node); 
+        q_new.cost  += EucDist(q_new, qNearestPtr->node);  
+        double distNewNear = EucDist(q_new, qNearestPtr->node); 
 
         #ifdef DUBINSCURVE
         // q_new.state.theta = qNearestPtr->node.state.theta + distribution(generator)*2*M_PI/12 - 2*M_PI/12;
         // q_new.state.theta = q_new.state.theta - 2*M_PI * floor(q_new.state.theta / 2*M_PI); 
         
         DubinsPath path;
-        if(dubinsCurve(&path) == 0) continue; 
+        if(DubinsCurve(&path) == 0) continue; 
         q_new.cost = path.param[0] + path.param[1] + path.param[2]; 
 
         if(distNewNear < 1000 && collisionCheckDubins(&path))
         #endif
         
         #ifdef DYNAMICS
-        steer();
+        Steer();
 
         if(distNewNear < 1000 && CollisionCheck(q_new, qNearestPtr->node, params.obstacle))
         #endif        
 
         {
-            maximum_cost = max(maximum_cost, q_new.cost + euc_dist(q_new, q_goal)); 
-            maxDist      = max(maxDist, euc_dist(q_new, q_origin)); 
+            maximum_cost = max(maximum_cost, q_new.cost + EucDist(q_new, q_goal)); 
+            maxDist      = max(maxDist, EucDist(q_new, q_origin)); 
          
             qNewPtr = tree.insert(q_new);
             qNewPtr->parent = qNearestPtr; 
@@ -123,14 +123,14 @@ void Planner::RRTstar()
             qNewPtr->node.cost += qNearestPtr->node.cost; 
             #endif
 
-            nearby_nodes = tree.nearby(q_new, 50.0);
+            nearby_nodes = tree.Nearby(q_new, 50.0);
             Rewire(nearby_nodes); 
 
             
             #ifdef DUBINSCURVE
-            if(goalProxDubins())
+            if(GoalProxDubins())
             #elif defined(DYNAMICS)
-            if(goal_prox())
+            if(GoalProx())
             #endif
             {
                 #ifdef VISUALIZATION
@@ -209,10 +209,10 @@ Node Planner::RandomPoint(int k) //k nearest planner
             q_new.parent.y = q_origin.state.y;
 
             qNearestPtr = tree.findNearestPtr(q_new);
-            q_new.cost  = euc_dist(q_new, qNearestPtr->node) + qNearestPtr->node.cost;  
+            q_new.cost  = EucDist(q_new, qNearestPtr->node) + qNearestPtr->node.cost;  
 
 
-            double mquality = 1 - ((q_new.cost + euc_dist(q_new, q_goal) - optimal_cost)/(maximum_cost-optimal_cost));
+            double mquality = 1 - ((q_new.cost + EucDist(q_new, q_goal) - optimal_cost)/(maximum_cost-optimal_cost));
             mquality        = min(mquality,0.4);
 
             double r        = distribution(generator);
@@ -286,7 +286,7 @@ void Planner::Rewire(vector<kdNodePtr>& nearby_nodes)
             q->path = path; 
 
         #elif defined(DYNAMICS)
-        temp_cost = qNewPtr->node.cost + euc_dist(qNewPtr->node, q->node); 
+        temp_cost = qNewPtr->node.cost + EucDist(qNewPtr->node, q->node); 
         if(q->node.cost > temp_cost && SteerForRewire(qNewPtr, q))
         {
         #endif
@@ -303,7 +303,7 @@ void Planner::ReviseNearest(const vector<kdNodePtr>& nearby_nodes)
     double new_cost; 
     for(auto i : nearby_nodes)
     {
-        new_cost = i->node.cost + euc_dist(qNewPtr->node, i->node); 
+        new_cost = i->node.cost + EucDist(qNewPtr->node, i->node); 
         if(new_cost < qNewPtr->node.cost && SteerForRewire(i, qNewPtr))
         {
             cout <<  "revise nearest" << endl; 
@@ -313,13 +313,13 @@ void Planner::ReviseNearest(const vector<kdNodePtr>& nearby_nodes)
     }
 }
 
-bool Planner::goal_prox()
+bool Planner::GoalProx()
 {
-    double dist = euc_dist(q_new, q_goal);
+    double dist = EucDist(q_new, q_goal);
     return (dist < params.goalProx)? true : false; 
 }
 
-bool Planner::goalProxDubins(){
+bool Planner::GoalProxDubins(){
     DubinsPath path = qNewPtr->path; 
     double len = dubins_path_length(&path), x = 0, dist; 
     double q[3];

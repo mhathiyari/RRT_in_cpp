@@ -64,9 +64,9 @@ private:
     bool SteerForRewire(const Node& q1, Node& q2);
     void Rewire(vector<Node> nearby_nodes);
     void ReviseNearest(const vector<Node>& nearby_nodes);
-    vector<Node> nearby();
-    vector<Node> goal_path();
-    bool goal_prox(Node q_new);
+    vector<Node> Nearby();
+    vector<Node> GoalPath();
+    bool GoalProx(Node q_new);
     
     #ifdef VISUALIZATION
     Visualizer visualizer; 
@@ -75,7 +75,7 @@ private:
 public:
     
     vector<Node> path_goal; 
-    Node steer();
+    Node Steer();
     Planner(planner_params params);
     vector<Node> RRTstar();
     friend bool CollisionCheck(Node qa,Node qb);
