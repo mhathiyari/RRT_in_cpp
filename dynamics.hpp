@@ -1,14 +1,12 @@
 #ifndef dynamics_h
 #define dynamics_h
 
-// #include "planner.hpp"
 #include "common.hpp"
 #include <eigen3/Eigen/Dense>
 #include <vector>
 #include <random>
 #include <math.h>
 #include <limits>
-// #include "point.hpp"
 
 using namespace std;
 using namespace Eigen;

@@ -1,27 +1,10 @@
-#pragma once 
+#ifndef __COMMON_H__
+#define __COMMON_H__
+
 #include <iostream> 
-#include <cmath> 
-#include <vector>
-#include <limits>
-#include <random>
-#include <string>
-#include <memory>
-#include <functional>
-#include <algorithm>
-#include <queue>
-#include <ctime>
 #include <eigen3/Eigen/Dense>
 
 using namespace std; 
-
-inline double mod2pi(double theta){
-    return theta - 2*M_PI*floor(theta/2/M_PI); 
-}
-
-struct Path{
-    vector<double> cx; 
-    vector<double> cy; 
-}; 
 
 struct Point{
   double x;
@@ -68,12 +51,10 @@ typedef struct Planner_params{
 
 typedef struct states{
     double x; 
-    double y;
+    double y; //someday change this to point 
     double theta;
-    double v;
+    double vy;
     double theta_dot;
-    double rearX; 
-    double rearY; 
     bool operator==(const states& A) const{
         return (x == A.x && y == A.y);
     }
@@ -84,42 +65,27 @@ typedef struct states{
         x = A.x;
         y = A.y;
         theta = A.theta;
-        v = A.v;
+        vy = A.vy;
         theta_dot = A.theta_dot;
-        rearX = A.rearX; 
-        rearY = A.rearY;
     }
     void SetCoord(Point& A){ // camelcase all func names
         x = A.x;
         y = A.y;
         theta = M_PI;
-        v = 0;
+        vy = 0;
         theta_dot = 0;
     }
-    void NoiseState(const states& st, const double& nx, const double& ny){
+    void NoiseState(const States& st, const double& nx, const double& ny){
         x = st.x + nx; 
         y = st.y + ny; 
     }
-    void setNoise(const double noiseX, const double noiseY){
-        x += noiseX;
-        y += noiseY;
-    }
     void RandomState(const double& Random){
         theta =  2*M_PI*Random;
-        v = 0;
+        vy = 0;
         theta_dot = 0;
     }
     double Cost(const states& q2){
         return (sqrt(pow((x-q2.x),2)+pow((y-q2.y),2)));
-    }
-    void update(const double a, const double delta, const double dt, const double L){
-        x +=  v * cos(theta) * dt; 
-        y +=  v * sin(theta) * dt; 
-        theta = theta + v / L * tan(delta) * dt; 
-        theta = mod2pi(theta); 
-        v = v + a * dt; 
-        rearX = x - (L/2) * cos(theta); 
-        rearY = y - (L/2) * sin(theta); 
     }
 }States; // decide later on typdef bussiness 
 
@@ -157,12 +123,6 @@ inline void tfXy2Pixel(double& x, double& y, const int& width, const int& height
 
 inline double calDistNode(const Node& n1, const Node& n2){
     return sqrt(pow(n1.state.x-n2.state.x,2) + pow(n1.state.y-n2.state.y,2));
-}
-
-inline double calDist(double x1, double y1, double x2, double y2)
-{
-    double ret = sqrt((pow(x1-x2,2) + pow(y1-y2,2))); 
-    return ret;
 }
 
 inline int Orientation(Point p,Point q,Point r){
@@ -239,3 +199,4 @@ inline bool CollisionCheckPoint(Point q, Point p, Eigen::MatrixXd& obstacle){
     }
     return safe;
 } 
+#endif 

@@ -1,49 +1,34 @@
-#ifndef __VISUALIZER_H__
-#define __VISUALIZER_H__
-// #define MUSTAFA
+#pragma once
+
 #include "kdTreeNode.hpp"
-#ifdef MUSTAFA
-    #include <opencv2/opencv.hpp>
-    #include <opencv2/highgui/highgui.hpp>
-#else
-    #include <cv.h>
-    #include <highgui.h>
+#include "matplotlibcpp.h"
+namespace plt = matplotlibcpp;
 
-#endif
-typedef cv::Mat Image; 
+class Visualizer{
 
-class Visualizer
-{
 private:
-    Image map; 
-
-    int mFrame; 
-    int rows; 
-    int cols; 
-    int goalProx;
-    Eigen::MatrixXd obstacle; 
-
+    int xUpperLim; 
+    int yUpperLim;
+    int xLowerLim;
+    int yLowerLim;
+    int goalProx; 
+    Eigen::MatrixXd obstacle;
     string mName; 
+    int mFrame;
 
-    void drawObstacle();
+    void line(double x1, double y1, double x2, double y2, string lineType); 
+    void drawObstacle(); 
     void drawNodes(const kdNodePtr& root); 
-    void drawGoal(const Node& goal); 
-    void wire(const kdNodePtr& root, const cv::Scalar color);
-    void wireGoalPath(const kdNodePtr& goalPtr);
+    void drawGoal(const Node& goal);
+    void wire(const kdNodePtr& root, string color);  
+    void wireGoalPath(const kdNodePtr& goalPtr); 
     void wireGoalDubin(const kdNodePtr& goalPtr); 
-    void show(); 
 
 public:
     Visualizer(); 
-    void plannerParamsIn(const planner_params& A);
 
-    int getRows();
-    int getCols(); 
-
-    void drawMap(const kdNodePtr& root, const Node& goal);
-    void drawMapwGoalPath(const kdNodePtr& root, const kdNodePtr& goalPtr);
+    void plannerParamsIn(const planner_params& A); 
+    void drawMap(const kdNodePtr& root, const Node& goal); 
+    void drawMapGoalPath(const kdNodePtr& root, const kdNodePtr& goalPtr); 
     void drawDubinsCurve(const kdNodePtr& root, const kdNodePtr& goalPtr); 
-
 };
-
-#endif

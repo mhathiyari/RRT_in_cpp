@@ -8,7 +8,7 @@ States Dynamics::new_state(States q_old, double input, double time){
     state(0,0) = q_old.x;
     state(1,0) = q_old.y;
     state(2,0) = q_old.theta;
-    state(3,0) = q_old.vy;
+    state(3,0) = q_old.v;
     state(4,0) = q_old.theta_dot;
 
     for (double i = 0;i<=time; i+=dt){
@@ -27,7 +27,7 @@ States Dynamics::new_state(States q_old, double input, double time){
     q_old.x = state(0,0);
     q_old.y = state(1,0);
     q_old.theta = theta;
-    q_old.vy = state(3,0);
+    q_old.v = state(3,0);
     q_old.theta_dot =  state(4,0);
     return q_old;
 }

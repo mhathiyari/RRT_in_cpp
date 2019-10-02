@@ -24,6 +24,7 @@
 #endif
 
 #include "dubins.h"
+#include "common.hpp"
 
 #define EPSILON (10e-10)
 
@@ -66,15 +67,15 @@ int dubins_intermediate_results(DubinsIntermediateResults* in, double q0[3], dou
  *
  * fmod doesn't behave correctly for angular quantities, this function does
  */
-double fmodr( double x, double y)
-{
-    return x - y*floor(x/y);
-}
+// double fmodr( double x, double y)
+// {
+//     return x - y*floor(x/y);
+// }
 
-double mod2pi( double theta )
-{
-    return fmodr( theta, 2 * M_PI );
-}
+// double mod2pi( double theta )
+// {
+//     return fmodr( theta, 2 * M_PI );
+// }
 
 int dubins_shortest_path(DubinsPath* path, double q0[3], double q1[3], double rho)
 {
