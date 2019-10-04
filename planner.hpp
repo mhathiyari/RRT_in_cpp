@@ -66,12 +66,13 @@ public:
     Planner(const planner_params& params_in); 
     
     void Steer(); 
+    int  DubinsCurve(DubinsPath* path); 
     void RRTstar(); 
+    void ExtractPath(Path& path);
     void print(); 
-    int DubinsCurve(DubinsPath* path); 
+    
     // friend bool CollisionCheck(Node qa, Node qb, MatrixXd obstacle); 
 
 };
 
-default_random_engine generator(time(0));
-uniform_real_distribution<double> distribution(0,1);
+

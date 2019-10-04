@@ -5,6 +5,8 @@
 */
 double Planner::distCoeff = 300.0; 
 
+default_random_engine generator(time(0));
+uniform_real_distribution<double> distribution(0,1);
 
 /*
 * public
@@ -165,6 +167,38 @@ void Planner::RRTstar()
     }
     cout << "Time is: " << (clock()-st)/CLOCKS_PER_SEC << endl;
     return;
+}
+
+int helper(double q[3], double x, void* user_data)
+{   
+    return 0; 
+}
+
+void Planner::ExtractPath(Path& path){
+    kdNodePtr p = qGoalPtr;
+    while(p && p->parent){
+        std::vector<std::vector<double>> samplePoints; 
+        std::vector<double> xTmp, yTmp; 
+        dubins_path_sample_many(&p->path, 5.0, helper, samplePoints); 
+        double x1, y1; 
+        for(int i = 0; i < samplePoints.size(); i++){
+            x1 = samplePoints[i][0];
+            y1 = samplePoints[i][1]; 
+            xTmp.push_back(x1); 
+            yTmp.push_back(y1); 
+        }
+        x1 = p->node.state.x; 
+        y1 = p->node.state.y; 
+        xTmp.push_back(x1); 
+        yTmp.push_back(y1);
+        reverse(xTmp.begin(), xTmp.end()); 
+        reverse(yTmp.begin(), yTmp.end()); 
+        for(int i = 0; i < xTmp.size(); i++){
+            path.cx.push_back(xTmp[i]); 
+            path.cy.push_back(yTmp[i]);
+        }
+        p = p->parent; 
+    }
 }
 
 void Planner::print()
@@ -353,43 +387,4 @@ bool Planner::GoalProxDubins(){
         }
     }
     return !GOAL;
-}
-
-int main()
-{
-    planner_params A;
-    A.origin = Point(400,- 400);
-    A.goal   = Point(-400, 400);
-    MatrixXd obstacle(5,4);
-
-    // Simple Rectangle obstacle
-    // obstacle.row(0) << 1,1,-1,1;
-    // obstacle.row(1) << -1,1,-1,-1;
-    // obstacle.row(2) << -1,-1,1,-1;
-    // obstacle.row(3) << 1,-1,1,1;
-    // A.obstacle = 100*obstacle;
-
-    // Maze Map
-    obstacle.row(0) << 50,0,50,150;
-    obstacle.row(1) << 150,200,150,100;
-    obstacle.row(2) << 150,100,100,100;
-    obstacle.row(3) << 125,0,125,50;
-    obstacle.row(4) << 200,75,150,75;
-    A.obstacle = obstacle-(100*MatrixXd::Ones(5,4));
-    // cout<< A.obstacle<< endl;
-    A.obstacle.col(0) = -1*A.obstacle.col(0);
-    A.obstacle.col(2) = -1*A.obstacle.col(2);
-    A.obstacle *= 5; 
-
-    A.iterations = 8000;
-    A.width      = 1000; 
-    A.height     = 1000;
-    A.goalProx   = 15;
-
-    Planner p(A);
-    
-    p.RRTstar();
-    // p.print();
-    
-    return 0;
 }

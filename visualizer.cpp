@@ -104,15 +104,15 @@ void Visualizer::wireGoalDubin(const kdNodePtr& goalPtr){
     while(p && p->parent){
         std::vector<std::vector<double>> samplePoints; 
         dubins_path_sample_many(&p->path, 5.0, wireDubins, samplePoints);
-        std::cout << "size is: " << samplePoints.size() << std::endl;
         for(int i = 0; i < samplePoints.size(); i++){
             double x1 = samplePoints[i][0], y1 = samplePoints[i][1]; 
+            std::cout << x1 << " " << y1 << std::endl;
             // double x2 = samplePoints[i+1][0], y2 = samplePoints[i+1][1]; 
             plotPoint(x1, y1, "bo");
             // plotPoint(x2, y2, "ro");
             // plotLine(x1, y1, x2, y2, "r-");
         }
-        double x = p->node.state.x, y = p->node.state.y; 
+        double x = p->node.state.x, y = p->node.state.y;
         plotPoint(x, y, "ro"); 
         p = p->parent; 
     }
@@ -156,7 +156,8 @@ void Visualizer::drawMapGoalPath(const kdNodePtr& root, const kdNodePtr& goalPtr
     wireGoalPath(goalPtr); 
     drawGoal(goalPtr->node); 
 
-    plt::show(); 
+    // plt::show(); 
+    plt::pause(0.0001);
 }
 
 void Visualizer::drawDubinsCurve(const kdNodePtr& root, const kdNodePtr& goalPtr){
@@ -169,4 +170,5 @@ void Visualizer::drawDubinsCurve(const kdNodePtr& root, const kdNodePtr& goalPtr
     drawGoal(goalPtr->node);
 
     plt::show(); 
+    // plt::pause(0.0001);
 }
