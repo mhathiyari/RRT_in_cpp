@@ -44,10 +44,10 @@ int main()
     reverse(path.cx.begin(), path.cx.end()); 
     reverse(path.cy.begin(), path.cy.end());
 
-    double targetSpeed = 10.0/3.6; 
+    double targetSpeed = 5.0; 
     // double T = 100.0
 
-    ppc car(A.origin.x, A.origin.y, -M_PI, 0); 
+    ppc car(A.origin.x, A.origin.y, -M_PI, 0.0); 
     int lastIndex = path.cx.size()-1, currentIndex = 0; 
     // double mTime = 0.0; 
     std::vector<double> x = {car.st.x};
@@ -62,7 +62,11 @@ int main()
         std::vector<double> ret = car.implementPPC(path, targetSpeed, currentIndex);
         currentIndex = ret[0];
         // mTime += car.dt; 
-        std::cout << currentIndex << std::endl;
+        // std::cout << currentIndex << ": " << car.st.x << " " << car.st.y; 
+        // std::cout << " " << car.st.theta << " " << car.st.v << std::endl;
+        // std::cout << "path: " << path.cx[currentIndex] << " " << path.cy[currentIndex]; 
+        // std::cout << " distance: " << calDist(car.st.x, car.st.y, path.cx[currentIndex], path.cy[currentIndex]); 
+        // std::cout << std::endl << std::endl;
         x.push_back(car.st.x); 
         y.push_back(car.st.y); 
         v.push_back(car.st.theta); 
@@ -74,7 +78,7 @@ int main()
         // plt::xlim(-10, 60); 
         // plt::ylim(-25, 25); 
         plt::named_plot("path", path.cx, path.cy, "r-");
-        plt::named_plot("Traj_wPF", x,  y,  "b*");
+        plt::named_plot("Tracking", x,  y,  "b*");
         // plt::named_plot("Traj_woPF", xWoLoc, yWoLoc, "c*");
 
         // plt::named_plot("pfTraj", pfX, pfY, "co");
@@ -83,6 +87,6 @@ int main()
         plt::pause(0.001);
         #endif
     }
-
+    plt::show();
     return 0;
 }

@@ -1,45 +1,6 @@
 #include "ppc.hpp"
 
-
-#ifdef OPENCV_VIZ
-
-int cols = 1000, rows = 1000; 
-double factor = 10.0; 
-cv::Mat map = cv::Mat::zeros(cv::Size(cols, rows), CV_8UC3); 
-
-void tfXy2Pixel(double& x, double& y, const int& width, const int& height){
-    x *= factor; 
-    y *= factor; 
-    x += width/2;
-    y = height/2 - y;
-}
-
-void drawTrajectory(std::vector<double>& cx, std::vector<double>& cy){
-    int n = cx.size(); 
-    for(int i = 0; i < n; i++){
-        double x = cx[i], y = cy[i]; 
-        tfXy2Pixel(x, y, cols, rows); 
-        cv::circle(map,
-                   cv::Point2d(x,y),
-                   3, 
-                   cv::Scalar(255,0,0),
-                   -1,
-                   CV_AA);  
-    }
-}
-
-void drawPoint(double x, double y){
-    tfXy2Pixel(x, y, cols, rows); 
-    cv::circle(map,
-               cv::Point2d(x,y),
-               2, 
-               cv::Scalar(255,255,255),
-               -1,
-               CV_AA);  
-}
-#endif 
-
-double ppc::k   = 0.1; 
+double ppc::k   = 1.0; 
 double ppc::Lfc = 0.5; 
 double ppc::Kp  = 1.0; 
 
@@ -97,12 +58,15 @@ int ppc::calTargetIndex(const States& st, const Path& p){
     }else{
         res = oldNearestPointIndex; 
         double distanceThisIndex = calDistance(st, p.cx[res], p.cy[res]); 
-        bool ind; 
-        ind = (distanceThisIndex < 5.0)? true : false; 
+        bool ind = true; 
+        // ind = (distanceThisIndex < 10.0)? true : false; 
         while(ind){
             res = (res< p.cx.size()-1)? res + 1 : res; 
             double distanceNextIndex = calDistance(st, p.cx[res], p.cy[res]); 
-            if(distanceThisIndex < distanceNextIndex) break; 
+            if(distanceThisIndex < distanceNextIndex){
+                res = (distanceNextIndex < 10.0)? res : res-1; 
+                break;
+            } 
             distanceThisIndex = distanceNextIndex; 
         }
         oldNearestPointIndex = res; 

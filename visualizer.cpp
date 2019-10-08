@@ -169,6 +169,6 @@ void Visualizer::drawDubinsCurve(const kdNodePtr& root, const kdNodePtr& goalPtr
     wireGoalDubin(goalPtr); 
     drawGoal(goalPtr->node);
 
-    plt::show(); 
+    // plt::show(); 
     // plt::pause(0.0001);
 }

@@ -77,7 +77,7 @@ int Planner::DubinsCurve(DubinsPath* path)
 
     double q0[]          = {q_nearest.state.x, q_nearest.state.y, q_nearest.state.theta}; 
     double q1[]          = {q_new.state.x, q_new.state.y, q_new.state.theta}; 
-    double turningRadius = 10.0; 
+    double turningRadius = 30.0; 
     
     int err = dubins_shortest_path(path, q0, q1, turningRadius); 
     
