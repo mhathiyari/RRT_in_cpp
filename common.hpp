@@ -11,8 +11,11 @@
 #include <queue>
 #include <ctime>
 #include <eigen3/Eigen/Dense>
+#include "matplotlibcpp.h"
 
 using namespace std; 
+namespace plt = matplotlibcpp;
+
 
 inline double mod2pi(double theta){
     return theta - 2*M_PI*floor(theta/2/M_PI); 
@@ -239,3 +242,41 @@ inline bool CollisionCheckPoint(Point q, Point p, Eigen::MatrixXd& obstacle){
     }
     return safe;
 } 
+
+inline void plotLine(double x1, double y1, double x2, double y2, string lineType){
+    vector<double> x = {x1, x2}, y = {y1, y2}; 
+    plt::plot(x, y, lineType); 
+}
+
+inline void plotCircle(double x, double y, double radius){
+    double inc = M_PI / 20;
+    std::vector<double> xPos, yPos; 
+    for(double theta = 0; theta <= 2*M_PI; theta += inc){
+        double x1 = x + radius * cos(theta);
+        double y1 = y + radius * sin(theta); 
+        xPos.push_back(x1); 
+        yPos.push_back(y1); 
+    }
+    plt::plot(xPos, yPos, "ro");   
+}
+
+inline void plotPoint(double x1, double y1, string pointType){
+    vector<double> x = {x1}, y = {y1};
+    plt::plot(x, y, pointType);
+}
+
+inline void plotCar(double x, double y, double theta){
+    double l = 20, w = 12; 
+    double x1 = x + l/2, x2 = x1 - l, v1x, v2x, v3x, v4x; 
+    double y1 = y + w/2, y2 = y1 - w, v1y, v2y, v3y, v4y;
+    v1x = x + l/2*cos(theta) - w/2*sin(theta); v1y = y + l/2*sin(theta) + w/2*cos(theta);
+    v2x = x + l/2*cos(theta) + w/2*sin(theta); v2y = y + l/2*sin(theta) - w/2*cos(theta);
+    v3x = x - l/2*cos(theta) + w/2*sin(theta); v3y = y - l/2*sin(theta) - w/2*cos(theta);
+    v4x = x - l/2*cos(theta) - w/2*sin(theta); v4y = y - l/2*sin(theta) + w/2*cos(theta);
+    
+
+    plotLine(v1x, v1y, v2x, v2y, "b");
+    plotLine(v3x, v3y, v2x, v2y, "r");
+    plotLine(v3x, v3y, v4x, v4y, "r");
+    plotLine(v1x, v1y, v4x, v4y, "r");
+}

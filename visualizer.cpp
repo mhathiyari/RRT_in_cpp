@@ -3,27 +3,6 @@
 /*
 * private
 */ 
-void plotLine(double x1, double y1, double x2, double y2, string lineType){
-    vector<double> x = {x1, x2}, y = {y1, y2}; 
-    plt::plot(x, y, lineType); 
-}
-
-void plotCircle(double x, double y, double radius){
-    double inc = M_PI / 20;
-    std::vector<double> xPos, yPos; 
-    for(double theta = 0; theta <= 2*M_PI; theta += inc){
-        double x1 = x + radius * cos(theta);
-        double y1 = y + radius * sin(theta); 
-        xPos.push_back(x1); 
-        yPos.push_back(y1); 
-    }
-    plt::plot(xPos, yPos, "ro");   
-}
-
-void plotPoint(double x1, double y1, string pointType){
-    vector<double> x = {x1}, y = {y1};
-    plt::plot(x, y, pointType);
-}
 
 void Visualizer::drawObstacle(){
     for(int i = 0; i < obstacle.rows(); i++){
@@ -56,10 +35,10 @@ void Visualizer::drawNodes(const kdNodePtr& root){
             continue; 
         }
 
-        if(p->parent == nullptr){
+        if(p->parent.lock() == nullptr){
             std::cout << "PARENT ERROR" << std::endl;
         }else{
-            n2 = p->parent->node; 
+            n2 = p->parent.lock()->node; 
             x2 = n2.state.x;
             y2 = n2.state.y; 
         }
@@ -84,13 +63,13 @@ void Visualizer::wire(const kdNodePtr& root, string color){
 void Visualizer::wireGoalPath(const kdNodePtr& goalPtr){
     kdNodePtr p = goalPtr; 
     Node n1, n2; 
-    while(p && p->parent){
+    while(p && p->parent.lock()){
         n1 = p->node; 
-        n2 = p->parent->node; 
+        n2 = p->parent.lock()->node; 
         double x1 = n1.state.x, y1 = n1.state.y, x2 = n2.state.x, y2 = n2.state.y; 
         plotLine(x1, y1, x2, y2, "r-"); 
         
-        p = p->parent; 
+        p = p->parent.lock(); 
     }
 }
 
@@ -101,12 +80,11 @@ int wireDubins(double q[3], double x, void* user_data)
 
 void Visualizer::wireGoalDubin(const kdNodePtr& goalPtr){
     kdNodePtr p = goalPtr; 
-    while(p && p->parent){
+    while(p && p->parent.lock()){
         std::vector<std::vector<double>> samplePoints; 
         dubins_path_sample_many(&p->path, 5.0, wireDubins, samplePoints);
         for(int i = 0; i < samplePoints.size(); i++){
             double x1 = samplePoints[i][0], y1 = samplePoints[i][1]; 
-            std::cout << x1 << " " << y1 << std::endl;
             // double x2 = samplePoints[i+1][0], y2 = samplePoints[i+1][1]; 
             plotPoint(x1, y1, "bo");
             // plotPoint(x2, y2, "ro");
@@ -114,7 +92,7 @@ void Visualizer::wireGoalDubin(const kdNodePtr& goalPtr){
         }
         double x = p->node.state.x, y = p->node.state.y;
         plotPoint(x, y, "ro"); 
-        p = p->parent; 
+        p = p->parent.lock(); 
     }
 }
 

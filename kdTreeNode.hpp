@@ -19,12 +19,12 @@ struct kdNode
     Node                    node; 
     std::shared_ptr<kdNode> left; 
     std::shared_ptr<kdNode> right; 
-    std::shared_ptr<kdNode> parent; 
+    std::weak_ptr<kdNode>   parent; 
     DubinsPath              path; 
     
     kdNode(){}; //look into whether its needed 
     kdNode(const Node& n)
-    :node(n), left(nullptr), right(nullptr), parent(nullptr){}; 
+    :node(n), left(nullptr), right(nullptr){}; 
 };
 typedef std::shared_ptr<kdNode> kdNodePtr;
 

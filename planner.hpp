@@ -3,14 +3,11 @@
 #include "kdTreeNode.hpp"
 #include "dynamics.hpp"
 #include "dubins.h"
+#include "visualizer.hpp"
+
 
 // Uncomment for visualization 
 #define VISUALIZATION
-#ifdef VISUALIZATION
-// #include "visualizer.hpp"
-#include "visualizer.hpp"
-#endif
-//
 
 // Uncomment for Dubins Curve
 #define DUBINSCURVE

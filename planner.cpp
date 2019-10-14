@@ -91,7 +91,6 @@ void Planner::RRTstar()
     for(int i = 0; i < params.iterations; i++)
     {  
         q_new = RandomPoint(0);//pass zero to turn off goal bias
-
         /* trying new stuff*/
         nearby_nodes = tree.Nearby(q_new, 500.0);
         // if(nearby_nodes.empty()) continue; 
@@ -147,7 +146,7 @@ void Planner::RRTstar()
                 qGoalPtr->parent = qNewPtr;
                 
                 #ifdef DYNAMICS
-                visualizer.drawMapwGoalPath(tree.getRootPtr(), qGoalPtr); 
+                visualizer.drawMapGoalPath(tree.getRootPtr(), qGoalPtr); 
                 #endif
                 #ifdef DUBINSCURVE
                 visualizer.drawDubinsCurve(tree.getRootPtr(), qGoalPtr); 
@@ -176,7 +175,7 @@ int helper(double q[3], double x, void* user_data)
 
 void Planner::ExtractPath(Path& path){
     kdNodePtr p = qGoalPtr;
-    while(p && p->parent){
+    while(p && p->parent.lock()){
         std::vector<std::vector<double>> samplePoints; 
         std::vector<double> xTmp, yTmp; 
         dubins_path_sample_many(&p->path, 5.0, helper, samplePoints); 
@@ -197,7 +196,7 @@ void Planner::ExtractPath(Path& path){
             path.cx.push_back(xTmp[i]); 
             path.cy.push_back(yTmp[i]);
         }
-        p = p->parent; 
+        p = p->parent.lock(); 
     }
 }
 
@@ -312,7 +311,7 @@ bool Planner::collisionCheckDubins(DubinsPath* path){
     }
     double len = dubins_path_length(path), x = 0;
     bool safe = true;  
-    for(;x <= len; x += len/5){         
+    for(;x <= len; x += len/50){         
         Point p(qInit[0], qInit[1]); 
         dubins_path_sample(path, x, qInit); 
         Point q(qInit[0], qInit[1]);         

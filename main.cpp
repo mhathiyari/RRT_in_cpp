@@ -44,7 +44,21 @@ int main()
     reverse(path.cx.begin(), path.cx.end()); 
     reverse(path.cy.begin(), path.cy.end());
 
-    double targetSpeed = 5.0; 
+    double targetSpeed;
+    std::cout << "Enter target speed between 5 and 30: " << std::endl;
+    std::cin >> targetSpeed; 
+    while(true){
+        if(std::cin.fail() || targetSpeed < 5.0 || targetSpeed > 30.0){
+            std::cin.clear(); 
+            std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+            std::cout << "Enter target speed between 5 and 30: " << std::endl;
+            std::cin >> targetSpeed;
+        }else if(!std::cin.fail()){
+            break;
+        }
+    }
+
+     
     // double T = 100.0
 
     ppc car(A.origin.x, A.origin.y, -M_PI, 0.0); 
@@ -56,7 +70,10 @@ int main()
     std::vector<double> v = {car.st.v};
     // std::vector<double> t = {mTime};
 
-    std::cout << lastIndex << std::endl;
+    #ifdef VIZ
+    Visualizer viz; 
+    viz.plannerParamsIn(A);
+    #endif
 
     while(lastIndex > currentIndex){
         std::vector<double> ret = car.implementPPC(path, targetSpeed, currentIndex);
@@ -77,14 +94,19 @@ int main()
         // plt::figure_size(1200, 780); 
         // plt::xlim(-10, 60); 
         // plt::ylim(-25, 25); 
-        plt::named_plot("path", path.cx, path.cy, "r-");
-        plt::named_plot("Tracking", x,  y,  "b*");
+        plt::named_plot("path", path.cx, path.cy, "k-");
+        plt::named_plot("Tracking", x,  y,  "go");
+        plotCar(car.st.x, car.st.y, car.st.theta);
+        viz.drawObstacle();
         // plt::named_plot("Traj_woPF", xWoLoc, yWoLoc, "c*");
 
         // plt::named_plot("pfTraj", pfX, pfY, "co");
         plt::title("PurePursuitControl"); 
         plt::legend(); 
         plt::pause(0.001);
+        plt::xlim(-A.width/2-50, A.width/2+50);
+        plt::ylim(-A.height/2-50, A.height/2+50);
+        // plt::axis("equal");
         #endif
     }
     plt::show();
