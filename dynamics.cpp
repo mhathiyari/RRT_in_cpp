@@ -1,8 +1,8 @@
 #include "dynamics.hpp"
-// #include "planner.hpp"
+
 // variables comment
 States Dynamics::new_state(States q_old, double input, double time){
- //  RK4
+
     double dt = 0.01; // add check min dt or time
     Matrix<double,5,1> state,k1,k2,k3,k4;
     state(0,0) = q_old.x;
@@ -10,8 +10,9 @@ States Dynamics::new_state(States q_old, double input, double time){
     state(2,0) = q_old.theta;
     state(3,0) = q_old.v;
     state(4,0) = q_old.theta_dot;
-
+     //  RK4
     for (double i = 0;i<=time; i+=dt){
+
     k1  = dynamics(state, input);
     k2 = dynamics(state +k1/2, input);
     k3 = dynamics(state +k2/2, input);

@@ -6,7 +6,7 @@
 
 int main()
 {
-    planner_params A;
+    PlannerParams A;
     A.origin = Point(400,- 400);
     A.goal   = Point(-400, 400);
     MatrixXd obstacle(5,4);

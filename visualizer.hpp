@@ -27,7 +27,7 @@ private:
 public:
     Visualizer(); 
 
-    void plannerParamsIn(const planner_params& A); 
+    void plannerParamsIn(const PlannerParams& A); 
     void drawMap(const kdNodePtr& root, const Node& goal); 
     void drawMapGoalPath(const kdNodePtr& root, const kdNodePtr& goalPtr); 
     void drawDubinsCurve(const kdNodePtr& root, const kdNodePtr& goalPtr); 

@@ -126,7 +126,7 @@ Visualizer::Visualizer(){
     mFrame = 0; 
 }
 
-void Visualizer::plannerParamsIn(const planner_params& A){
+void Visualizer::plannerParamsIn(const PlannerParams& A){
     xUpperLim =  A.height / 2 + 100;
     xLowerLim = -A.height / 2 - 100; 
     yUpperLim =  A.width  / 2 + 100; 

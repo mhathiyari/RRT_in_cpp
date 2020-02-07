@@ -26,7 +26,7 @@ class Planner
 {
 private:
 
-    planner_params params; 
+    PlannerParams params; 
 
     kdTreeNode tree;
     Dynamics   dynamic;
@@ -63,7 +63,7 @@ private:
 
 public:
 
-    Planner(const planner_params& params_in); 
+    Planner(const PlannerParams& params_in); 
     
     void Steer(); 
     int  DubinsCurve(DubinsPath* path); 

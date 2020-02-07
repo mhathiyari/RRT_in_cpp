@@ -26,9 +26,9 @@ struct Path{
 struct Point{
   double x;
   double y;
-  Point(const double x_ = 0,const double y_ = 0){
-    x = x_;
-    y = y_;
+  Point(const double x = 0,const double y = 0){
+    this->x = x;
+    this->y = y;
   }
 
   void print() const{
@@ -56,7 +56,7 @@ struct Point{
   }
 };// Inculde z maybe
 
-typedef struct Planner_params{
+typedef struct PlannerParams{
     Point origin;
     Point goal;
     Eigen::MatrixXd obstacle;
@@ -64,7 +64,7 @@ typedef struct Planner_params{
     int width;
     int height;
     int goalProx;
-}planner_params;
+}PlannerParams;
 
 typedef struct states{
     double x; 
