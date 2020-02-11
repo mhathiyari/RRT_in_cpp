@@ -1,6 +1,6 @@
 #include "dynamics.hpp"
 
-// variables comment
+// Integrates the vehicle state forward by "time" for a specified steering i/p
 States Dynamics::new_state(States q_old, double input, double time){
 
     double dt = 0.01; // add check min dt or time
@@ -10,7 +10,7 @@ States Dynamics::new_state(States q_old, double input, double time){
     state(2,0) = q_old.theta;
     state(3,0) = q_old.v;
     state(4,0) = q_old.theta_dot;
-     //  RK4
+     //Integration scheme RK4
     for (double i = 0;i<=time; i+=dt){
 
     k1  = dynamics(state, input);
@@ -33,6 +33,7 @@ States Dynamics::new_state(States q_old, double input, double time){
     return q_old;
 }
 
+// Contain Bi cycle model dynamics of a car with linear tyre model
 Matrix<double,5,1> Dynamics::dynamics(Matrix<double,5,1> state ,double u)
 {
 double mass = 760; // TODO make a seprate place to define constants and see what are better ways to declare

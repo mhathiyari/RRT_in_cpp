@@ -50,12 +50,8 @@ private:
     Node RandomPoint();                                            // without goal bais
     Node RandomPoint(int k);                                       // with Gb
     bool SteerForRewire(const kdNodePtr& p1, const kdNodePtr& p2); 
-    bool dubinForRewire(const kdNodePtr& p1, const kdNodePtr& p2, DubinsPath* path); 
-    bool collisionCheckDubins(DubinsPath* path); 
     void Rewire(vector<kdNodePtr>& nearby_nodes);
-    void ReviseNearest(const vector<kdNodePtr>& nearby_nodes);
     bool GoalProx(); 
-    bool GoalProxDubins();
 
     #ifdef VISUALIZATION
     Visualizer visualizer; 
@@ -66,7 +62,6 @@ public:
     Planner(const PlannerParams& params_in); 
     
     void Steer(); 
-    int  DubinsCurve(DubinsPath* path); 
     void RRTstar(); 
     void ExtractPath(Path& path);
     void print(); 
