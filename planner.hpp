@@ -2,7 +2,6 @@
 
 #include "kdTreeNode.hpp"
 #include "dynamics.hpp"
-#include "dubins.h"
 
 // Uncomment for visualization 
 #define VISUALIZATION
@@ -13,7 +12,7 @@
 //
 
 // Uncomment for Dubins Curve
-#define DUBINSCURVE
+//#define DUBINSCURVE
 
 #ifndef DUBINSCURVE
 #define DYNAMICS
@@ -65,6 +64,7 @@ public:
     void RRTstar(); 
     void ExtractPath(Path& path);
     void print(); 
+    void DrawsmoothPath(Path smooth);
     
     // friend bool CollisionCheck(Node qa, Node qb, MatrixXd obstacle); 
 

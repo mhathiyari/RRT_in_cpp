@@ -87,23 +87,27 @@ void Planner::RRTstar()
         
         Steer();
 
-        if(distNewNear < 1000 && CollisionCheck(q_new, qNearestPtr->node, params.obstacle))
+        if(distNewNear < 100 && CollisionCheck(q_new, qNearestPtr->node, params.obstacle))
         {
             maximum_cost = max(maximum_cost, q_new.cost + EucDist(q_new, q_goal)); 
 
             qNewPtr = tree.insert(q_new);
             qNewPtr->parent = qNearestPtr; 
             
-            nearby_nodes = tree.Nearby(q_new, 500.0);
-            Rewire(nearby_nodes); 
+            // nearby_nodes = tree.Nearby(q_new, 500.0);
+            // Rewire(nearby_nodes); 
 
             if(GoalProx())
             {
                 #ifdef VISUALIZATION
                 qGoalPtr = tree.insert(q_goal); 
                 qGoalPtr->parent = qNewPtr;
-                
-                visualizer.drawMapwGoalPath(tree.getRootPtr(), qGoalPtr); 
+                // visualizer.drawMap(tree.getRootPtr(), q_goal); 
+                int q;
+                // cin>>q;
+                visualizer.drawMapGoalPath(tree.getRootPtr(), qGoalPtr); 
+                cin>>q;
+
                 #endif
                 
                 cout << "Number of iteration: " << i << endl;
@@ -111,6 +115,7 @@ void Planner::RRTstar()
             }
         }
         #ifdef VISUALIZATION //incase you want step by step viz(SLOW!!)
+        // if(i>19000)
         //visualizer.drawMap(tree.getRootPtr(), q_goal); 
         #endif
 
@@ -127,7 +132,7 @@ void Planner::ExtractPath(Path& path){
     while(p && p->parent){
         std::vector<std::vector<double>> samplePoints; 
         std::vector<double> xTmp, yTmp; 
-        dubins_path_sample_many(&p->path, 5.0, helper, samplePoints); 
+        //dubins_path_sample_many(&p->path, 5.0, helper, samplePoints); 
         double x1, y1; 
         for(int i = 0; i < samplePoints.size(); i++){
             x1 = samplePoints[i][0];
@@ -188,7 +193,7 @@ Node Planner::RandomPoint(int k) //k nearest planner based on https://www.ri.cmu
 {       
     if (k == 0)
         return RandomPoint(); //Truly Random
-    }else{
+    else{
         while(1){
             q_new.state.RandomState(distribution(generator));
             q_new.state.x  = params.width*distribution(generator)+(0-params.width/2);
@@ -230,34 +235,6 @@ bool Planner::SteerForRewire(const kdNodePtr& p1, const kdNodePtr& p2)
     return false;
 }
 
-bool Planner::dubinForRewire(const kdNodePtr& p1, const kdNodePtr& p2, DubinsPath* path)
-{
-    Node n1 = p1->node, n2 = p2->node;
-    double q0[]          = {n1.state.x, n1.state.y, n1.state.theta}; 
-    double q1[]          = {n2.state.x, n2.state.y, n2.state.theta}; 
-    double turningRadius = 10.0; 
-    
-    int err = dubins_shortest_path(path, q0, q1, turningRadius);
-    return (err)? false : true;
-}
-
-bool Planner::collisionCheckDubins(DubinsPath* path){
-    double qInit[3];
-    for(int i = 0; i < 3; i++){
-        qInit[i] = path->qi[i]; 
-    }
-    double len = dubins_path_length(path), x = 0;
-    bool safe = true;  
-    for(;x <= len; x += len/5){         
-        Point p(qInit[0], qInit[1]); 
-        dubins_path_sample(path, x, qInit); 
-        Point q(qInit[0], qInit[1]);         
-        if (abs(q.x) > params.width/2 || abs(q.y) > params.height/2 || !CollisionCheckPoint(p, q, params.obstacle)){
-            return !safe; 
-        };
-    }
-    return safe; 
-}
 
 // Rewire is part RRT* it revises cost of nearby nodes of the q_new if possible
 void Planner::Rewire(vector<kdNodePtr>& nearby_nodes)
@@ -280,4 +257,11 @@ bool Planner::GoalProx()
 {
     double dist = EucDist(q_new, q_goal);
     return (dist < params.goalProx)? true : false; 
+}
+
+void Planner::DrawsmoothPath(Path smooth){
+    //visualizer.drawMapGoalPath(tree.getRootPtr(), qGoalPtr); 
+    plt::clf();
+    plt::plot(smooth.cx,smooth.cy,"-g");
+    plt::show();
 }

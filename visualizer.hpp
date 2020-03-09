@@ -22,7 +22,6 @@ private:
     void drawGoal(const Node& goal);
     void wire(const kdNodePtr& root, string color);  
     void wireGoalPath(const kdNodePtr& goalPtr); 
-    void wireGoalDubin(const kdNodePtr& goalPtr); 
 
 public:
     Visualizer(); 
@@ -30,5 +29,4 @@ public:
     void plannerParamsIn(const PlannerParams& A); 
     void drawMap(const kdNodePtr& root, const Node& goal); 
     void drawMapGoalPath(const kdNodePtr& root, const kdNodePtr& goalPtr); 
-    void drawDubinsCurve(const kdNodePtr& root, const kdNodePtr& goalPtr); 
 };

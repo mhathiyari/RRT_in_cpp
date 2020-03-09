@@ -12,6 +12,8 @@
 #include <ctime>
 #include <eigen3/Eigen/Dense>
 
+#define POINT_NUM_IN_ONE_CURVE 10
+
 using namespace std; 
 
 inline double mod2pi(double theta){
@@ -27,6 +29,11 @@ struct Point{
   double x;
   double y;
   Point(const double x = 0,const double y = 0){
+    this->x = x;
+    this->y = y;
+  }
+
+  void setvalue(const double x = 0,const double y = 0){
     this->x = x;
     this->y = y;
   }
@@ -239,3 +246,4 @@ inline bool CollisionCheckPoint(Point q, Point p, Eigen::MatrixXd& obstacle){
     }
     return safe;
 } 
+

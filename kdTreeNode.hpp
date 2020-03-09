@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common.hpp"
-#include "dubins.h"
 // #include <random>
 // #include <memory>
 // #include <vector> 
@@ -20,8 +19,7 @@ struct kdNode
     std::shared_ptr<kdNode> left; 
     std::shared_ptr<kdNode> right; 
     std::shared_ptr<kdNode> parent; 
-    DubinsPath              path; 
-    
+     
     kdNode(){}; //look into whether its needed 
     kdNode(const Node& n)
     :node(n), left(nullptr), right(nullptr), parent(nullptr){}; 

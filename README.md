@@ -8,6 +8,8 @@ This is the sister repository to RRT_Experimentation. RRTs implemented in C++
 # current
 g++ -std=c++11 -o RRT.o planner.cpp visualizer.cpp dubins.c kdTreeNode.cpp dynamics.cpp -I/usr/include/python2.7 -lpython2.7
 
+g++ -std=c++11 -o RRT.o main.cpp planner.cpp visualizer.cpp kdTreeNode.cpp dynamics.cpp -I/usr/include/python2.7 -lpython2.7
+
 # g++ version : 
 g++ (Ubuntu 4.8.5-4ubuntu2) 4.8.5, opencv 2.4.8
 
